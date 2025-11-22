@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'api',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -47,6 +49,17 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+]
+
+CORS_ALLOWED_ORIGINS = [
+    # "https://example.com",
+    # "https://sub.example.com",
+    "http://localhost:8080",
+    "http://127.0.0.1:9000",
+    "http://localhost:8080",
+    "http://192.168.1.3:8080",
 ]
 
 ROOT_URLCONF = 'EquiposAPI.urls'
@@ -74,8 +87,12 @@ WSGI_APPLICATION = 'EquiposAPI.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        "HOST": "127.0.0.1",
+        "PORT" : 3306,
+        "USER" : "root",
+        "PASSWORD" : "",
+        'NAME': "EquiposDB",
     }
 }
 

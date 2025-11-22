@@ -1,4 +1,5 @@
-Proyecto Final Ingenieria de Software
+# Proyecto Final Ingenieria de Software
 
-Juan Camilo Carvajal
-Cristian Florez
+#### Integrantes:
+- Juan Camilo Carvajal
+- Cristian Florez

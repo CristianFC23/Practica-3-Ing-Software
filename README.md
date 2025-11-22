@@ -1,4 +1,4 @@
-Proyecto 2 Ingenieria de Software
+Proyecto Final Ingenieria de Software
 
 Juan Camilo Carvajal
 Cristian Florez

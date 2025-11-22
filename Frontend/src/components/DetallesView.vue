@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <button @click="volverAtras" class="btn-home">🏠</button>
+    <button @click="volverAtras" class="btn-home">❌</button>
 
     <div class="detalles-container">
       <!-- Columna Izquierda: Foto y Botones -->

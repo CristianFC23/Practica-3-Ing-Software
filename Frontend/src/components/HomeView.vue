@@ -10,28 +10,28 @@
         <div class="sedes-row">
           <button 
             class="sede-btn" 
-            :class="{ 'sede-activa': sedeActual === 'Sede 1' }"
-            @click="sedeActual = 'Sede 1'">
-            Sede 1
+            :class="{ 'sede-activa': sedeActual === 'Prado' }"
+            @click="sedeActual = 'Prado'">
+            Prado
           </button>
           <button 
             class="sede-btn" 
-            :class="{ 'sede-activa': sedeActual === 'Sede 2' }"
-            @click="sedeActual = 'Sede 2'">
-            Sede 2
+            :class="{ 'sede-activa': sedeActual === 'SIU' }"
+            @click="sedeActual = 'SIU'">
+            SIU
           </button>
           <button 
             class="sede-btn" 
-            :class="{ 'sede-activa': sedeActual === 'Sede 3' }"
-            @click="sedeActual = 'Sede 3'">
-            Sede 3
+            :class="{ 'sede-activa': sedeActual === 'San Vicente' }"
+            @click="sedeActual = 'San Vicente'">
+            San Vicente
           </button>
         </div>
       </div>
 
       <!-- Dashboard principal -->
       <div class="dashboard-card">
-        <h2 class="dashboard-title">Dashboard - {{ sedeActual }}</h2>
+        <h2 class="dashboard-title"> Sede {{ sedeActual }}</h2>
         
         <div class="dashboard-grid">
           <!-- Columna 1: Gráfico de torta -->
@@ -132,7 +132,7 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 
-const sedeActual = ref('Sede 1');
+const sedeActual = ref('Prado');
 const router = useRouter();
 const hoveredSegment = ref(null);
 

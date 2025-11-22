@@ -37,6 +37,7 @@ class EquipoInfo(models.Model):
     forma_adquisicion = models.CharField(max_length=50)
     tipo_documento = models.CharField(max_length=50)
     numero_documento = models.CharField(max_length=50)
+    valor_compra= models.CharField(max_length=50)
 
     # 3. INVENTARIO DE DOCUMENTOS
     hoja_vida = models.CharField(max_length=10)

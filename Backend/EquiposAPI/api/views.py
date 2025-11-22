@@ -2,59 +2,63 @@ from django.http import JsonResponse
 from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from .models import Patient, Laboratorist, LabResults
+from .models import EquipoInfo
 import json
 
-# ---------------- Patients ----------------
-@method_decorator(csrf_exempt, name='dispatch')
-class PatientView(View):
 
+@method_decorator(csrf_exempt, name='dispatch')
+class EquipoInfoView(View):
+
+    # ---------- GET ----------
     def get(self, request, id=None):
         if id:
             try:
-                patient = Patient.objects.get(id=id)
-                data = {
-                    "id": patient.id,
-                    "name": patient.name,
-                    "lastname": patient.lastname,
-                    "documento": patient.documento,
-                    "cod_ing": patient.cod_ing,
-                    "direccion": patient.direccion,
-                    "telefono": patient.telefono
-                }
+                equipo = EquipoInfo.objects.get(id=id)
+                data = self.model_to_dict(equipo)
                 return JsonResponse(data, status=200)
-            except Patient.DoesNotExist:
-                return JsonResponse({"error": "Patient not found"}, status=404)
+            except EquipoInfo.DoesNotExist:
+                return JsonResponse({"error": "Equipo no encontrado"}, status=404)
         else:
-            patients = list(Patient.objects.values())
-            return JsonResponse(patients, safe=False, status=200)
+            equipos = list(EquipoInfo.objects.values())
+            return JsonResponse(equipos, safe=False, status=200)
 
+    # ---------- POST ----------
     def post(self, request):
         try:
             data = json.loads(request.body)
-            patient = Patient.objects.create(**data)
-            return JsonResponse({"message": "Patient created", "id": patient.id}, status=201)
+            equipo = EquipoInfo.objects.create(**data)
+            return JsonResponse({"message": "Equipo creado", "id": equipo.id}, status=201)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
 
+    # ---------- PUT ----------
     def put(self, request, id):
         try:
             data = json.loads(request.body)
-            patient = Patient.objects.get(id=id)
+            equipo = EquipoInfo.objects.get(id=id)
+
             for field, value in data.items():
-                setattr(patient, field, value)
-            patient.save()
-            return JsonResponse({"message": "Patient updated"}, status=200)
-        except Patient.DoesNotExist:
-            return JsonResponse({"error": "Patient not found"}, status=404)
+                setattr(equipo, field, value)
+
+            equipo.save()
+            return JsonResponse({"message": "Equipo actualizado"}, status=200)
+
+        except EquipoInfo.DoesNotExist:
+            return JsonResponse({"error": "Equipo no encontrado"}, status=404)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
 
+    # ---------- DELETE ----------
     def delete(self, request, id):
         try:
-            patient = Patient.objects.get(id=id)
-            patient.delete()
-            return JsonResponse({"message": "Patient deleted"}, status=200)
-        except Patient.DoesNotExist:
-            return JsonResponse({"error": "Patient not found"}, status=404)
+            equipo = EquipoInfo.objects.get(id=id)
+            equipo.delete()
+            return JsonResponse({"message": "Equipo eliminado"}, status=200)
+        except EquipoInfo.DoesNotExist:
+            return JsonResponse({"error": "Equipo no encontrado"}, status=404)
 
+    # ---------- Convertir modelo a diccionario ----------
+    def model_to_dict(self, obj):
+        """Convierte el modelo en un diccionario con todos los campos."""
+        fields = [f.name for f in obj._meta.fields]
+        return {field: getattr(obj, field) for field in fields}

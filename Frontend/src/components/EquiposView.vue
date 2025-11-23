@@ -18,12 +18,17 @@
         </div>
 
         <div class="card-body">
-          <input
-            type="text"
-            v-model="searchQuery"
-            placeholder="Buscar por nombre, código o marca"
-            class="search-input"
-          />
+          <div class="search-container">
+            <input
+              type="text"
+              v-model="searchQuery"
+              placeholder="Buscar por nombre, código o marca"
+              class="search-input"
+            />
+            <button @click="agregarEquipo" class="add-btn">
+              + AGREGAR EQUIPO
+            </button>
+          </div>
           <button @click="refrescarLista" class="refresh-btn" :disabled="loading">
             {{ loading ? 'Cargando...' : 'Refrescar' }}
           </button>
@@ -52,20 +57,84 @@
               {{ equiposFiltrados.length }} equipo(s) encontrado(s)
             </p>
             
-            <div v-for="equipo in equiposFiltrados" :key="equipo.id" class="ubicacion-item">
-              <div class="ubicacion-info">
-                <p class="ubicacion-nombre">{{ equipo.nombre }}</p>
-                <p class="ubicacion-detalle">
-                  Código: {{ equipo.codigo }} – Marca: {{ equipo.marca }}
-                </p>
-                <p class="ubicacion-telefono">
-                  📍 {{ equipo.ubicacion }} | Estado: {{ equipo.estado }}
-                </p>
+            <div v-for="equipo in equiposFiltrados" :key="equipo.id" class="equipo-card">
+              <!-- Header del Equipo -->
+              <div class="equipo-header">
+                <div>
+                  <h3 class="equipo-nombre">{{ equipo.nombre }}</h3>
+                  <p class="equipo-codigo">{{ equipo.codigo }}</p>
+                </div>
+                <div class="header-actions">
+                  <span :class="['badge-estado', equipo.estado === 'activo' ? 'badge-activo' : 'badge-inactivo']">
+                    {{ equipo.estado === 'activo' ? '● Activo' : '● Inactivo' }}
+                  </span>
+                  <button class="edit-btn" @click.stop="editarEquipo(equipo)">
+                    MÁS INFORMACIÓN
+                  </button>
+                </div>
               </div>
 
-              <div class="acciones">
-                <button class="edit-btn" @click.stop="editarEquipo(equipo)">MÁS INFORMACIÓN</button>
-                <button class="delete-btn" @click.stop="eliminarEquipo(equipo.id)">ELIMINAR</button>
+              <!-- Información General -->
+              <div class="info-section">
+                <h4 class="section-title">📋 Información General</h4>
+                <div class="info-grid">
+                  <div class="info-item">
+                    <label>Proceso:</label>
+                    <p>{{ equipo.proceso }}</p>
+                  </div>
+                  <div class="info-item">
+                    <label>Nombre del equipo:</label>
+                    <p>{{ equipo.nombre }}</p>
+                  </div>
+                  <div class="info-item">
+                    <label>Código de inventario:</label>
+                    <p class="destacado">{{ equipo.codigo }}</p>
+                  </div>
+                  <div class="info-item">
+                    <label>Código IPS:</label>
+                    <p>{{ equipo.codigoIPS }}</p>
+                  </div>
+                  <div class="info-item">
+                    <label>Código ECRI:</label>
+                    <p>{{ equipo.codigoECRI }}</p>
+                  </div>
+                  <div class="info-item">
+                    <label>Responsable:</label>
+                    <p>{{ equipo.responsable }}</p>
+                  </div>
+                  <div class="info-item full-width">
+                    <label>Ubicación física:</label>
+                    <p>{{ equipo.ubicacion }}</p>
+                  </div>
+                  <div class="info-item">
+                    <label>Marca:</label>
+                    <p>{{ equipo.marca }}</p>
+                  </div>
+                  <div class="info-item">
+                    <label>Modelo:</label>
+                    <p>{{ equipo.modelo }}</p>
+                  </div>
+                  <div class="info-item">
+                    <label>Serie:</label>
+                    <p>{{ equipo.serie }}</p>
+                  </div>
+                  <div class="info-item full-width">
+                    <label>Clasificación eje misional:</label>
+                    <p>{{ equipo.clasificacionMisional }}</p>
+                  </div>
+                  <div class="info-item">
+                    <label>Clasificación IPS:</label>
+                    <p>{{ equipo.clasificacionIPS }}</p>
+                  </div>
+                  <div class="info-item">
+                    <label>Clasificación por riesgo:</label>
+                    <p class="riesgo">{{ equipo.clasificacionRiesgo }}</p>
+                  </div>
+                  <div class="info-item full-width">
+                    <label>Registro Invima:</label>
+                    <p class="invima">{{ equipo.registroInvima }}</p>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -93,9 +162,60 @@ export default {
     const error = ref(null);
 
     const equipos = ref([
-      { id: 1, nombre: 'Rayos X Digital', codigo: 'RX-001', marca: 'Siemens', ubicacion: 'Sala 1', estado: 'activo' },
-      { id: 2, nombre: 'Ecógrafo', codigo: 'ECO-002', marca: 'GE Healthcare', ubicacion: 'Sala 2', estado: 'activo' },
-      { id: 3, nombre: 'Tomógrafo', codigo: 'TC-003', marca: 'Philips', ubicacion: 'Sala 3', estado: 'inactivo' },
+      { 
+        id: 1, 
+        nombre: 'Rayos X Digital', 
+        codigo: 'RX-001-LIME-2023', 
+        marca: 'Siemens', 
+        modelo: 'Luminos Agile Max',
+        serie: 'SN-2023-RX-8947',
+        ubicacion: 'Sala de Radiología 1 - Piso 2', 
+        estado: 'activo',
+        proceso: 'Diagnóstico por Imágenes',
+        codigoIPS: 'IPS-RX-2023-045',
+        codigoECRI: '16-725',
+        responsable: 'Dr. Carlos Martínez Pérez',
+        clasificacionMisional: 'Docencia, Investigación, Extensión',
+        clasificacionIPS: 'IND',
+        clasificacionRiesgo: 'Clase IIB - Riesgo Alto',
+        registroInvima: '2023DM-0012345'
+      },
+      { 
+        id: 2, 
+        nombre: 'Ecógrafo', 
+        codigo: 'ECO-002-LIME-2023', 
+        marca: 'GE Healthcare', 
+        modelo: 'LOGIQ E10',
+        serie: 'SN-2023-ECO-5621',
+        ubicacion: 'Sala de Ecografía - Piso 3', 
+        estado: 'activo',
+        proceso: 'Diagnóstico por Imágenes',
+        codigoIPS: 'IPS-ECO-2023-089',
+        codigoECRI: '10-235',
+        responsable: 'Dra. María Rodríguez López',
+        clasificacionMisional: 'Docencia, Investigación',
+        clasificacionIPS: 'IND',
+        clasificacionRiesgo: 'Clase IIA - Riesgo Moderado',
+        registroInvima: '2023DM-0012890'
+      },
+      { 
+        id: 3, 
+        nombre: 'Tomógrafo', 
+        codigo: 'TC-003-LIME-2022', 
+        marca: 'Philips', 
+        modelo: 'Ingenuity CT',
+        serie: 'SN-2022-TC-3347',
+        ubicacion: 'Sala de Tomografía - Piso 2', 
+        estado: 'inactivo',
+        proceso: 'Diagnóstico por Imágenes',
+        codigoIPS: 'IPS-TC-2022-034',
+        codigoECRI: '12-890',
+        responsable: 'Dr. Jorge Hernández Silva',
+        clasificacionMisional: 'Docencia, Extensión',
+        clasificacionIPS: 'IND',
+        clasificacionRiesgo: 'Clase IIB - Riesgo Alto',
+        registroInvima: '2022DM-0009876'
+      },
     ]);
 
     const equiposFiltrados = computed(() => {
@@ -110,7 +230,10 @@ export default {
         resultado = resultado.filter(e =>
           e.nombre.toLowerCase().includes(q) ||
           e.codigo.toLowerCase().includes(q) ||
-          e.marca.toLowerCase().includes(q)
+          e.marca.toLowerCase().includes(q) ||
+          e.modelo.toLowerCase().includes(q) ||
+          e.serie.toLowerCase().includes(q) ||
+          e.responsable.toLowerCase().includes(q)
         );
       }
 
@@ -133,11 +256,14 @@ export default {
       });
     };
 
-    const eliminarEquipo = (id) => {
-      if (confirm('¿Seguro que quieres eliminar este equipo?')) {
-        equipos.value = equipos.value.filter(e => e.id !== id);
-        alert('Equipo eliminado correctamente');
-      }
+    const agregarEquipo = () => {
+      router.push({
+        name: 'crear-equipo',  // ← Asegúrate que coincida con el name en router
+        query: {
+          sede: sedeActual.value,
+          categoria: categoriaActual.value
+        }
+      });
     };
 
     const volverDashboard = () => {
@@ -154,7 +280,7 @@ export default {
       equiposFiltrados,
       refrescarLista,
       editarEquipo,
-      eliminarEquipo,
+      agregarEquipo,
       volverDashboard
     };
   }
@@ -166,16 +292,16 @@ export default {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  height: 100vh;
+  min-height: 100vh;
   overflow: hidden;
-  padding: 50px;
+  padding: 50px 20px;
   background: #244652;
 }
 
 .dashboard-cards {
   display: grid;
   grid-template-columns: 1fr;
-  max-width: 600px;
+  max-width: 1200px;
   width: 100%;
 }
 
@@ -222,15 +348,22 @@ export default {
   margin: 0;
 }
 
+/* CONTENEDOR DE BÚSQUEDA */
+.search-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
 /* INPUT BUSCADOR */
 .search-input {
-  width: 95%;
+  flex: 1;
   padding: 12px;
   border: 1px solid #244652;
   border-radius: 10px;
   font-size: 14px;
   transition: 0.2s ease;
-  margin-bottom: 10px;
   background: rgba(255, 255, 255, 0.9);
 }
 
@@ -238,6 +371,31 @@ export default {
   border-color: #212a31;
   outline: none;
   box-shadow: 0 0 0 2px rgba(36, 70, 82, 0.2);
+}
+
+/* BOTÓN AGREGAR */
+.add-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  background: #6fc232;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(111, 194, 50, 0.3);
+}
+
+.add-btn:hover {
+  background: #5da829;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(111, 194, 50, 0.4);
+}
+
+.add-btn:active {
+  transform: translateY(0);
 }
 
 /* BOTONES */
@@ -289,8 +447,8 @@ export default {
 .ubicaciones-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  max-height: 60vh;
+  gap: 20px;
+  max-height: 70vh;
   overflow-y: auto;
   padding-right: 8px;
 }
@@ -313,88 +471,160 @@ export default {
   background: #212a31;
 }
 
-/* ITEMS */
-.ubicacion-item {
+/* TARJETA DE EQUIPO */
+.equipo-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  border-left: 5px solid #244652;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.equipo-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+/* HEADER DEL EQUIPO */
+.equipo-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 16px;
-  border-left: 4px solid #244652;
-  transition: 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f0f0f0;
 }
 
-.ubicacion-item:hover {
-  background: #f8f9fa;
-  transform: translateX(6px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-}
-
-.ubicacion-info {
-  flex: 1;
-}
-
-.ubicacion-nombre {
+.equipo-nombre {
+  font-size: 22px;
   font-weight: 700;
   color: #212a31;
   margin: 0 0 5px 0;
-  font-size: 16px;
 }
 
-.ubicacion-detalle {
+.equipo-codigo {
   font-size: 13px;
-  color: #5a6c7d;
-  margin: 0 0 5px 0;
-}
-
-.ubicacion-telefono {
-  font-size: 12px;
-  color: #244652;
+  color: #00bab3;
   font-weight: 600;
   margin: 0;
 }
 
-.acciones {
+.header-actions {
   display: flex;
-  gap: 6px;
+  align-items: center;
+  gap: 12px;
 }
 
-/* EDITAR */
+.badge-estado {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-activo {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #81d742;
+}
+
+.badge-inactivo {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #e74c3c;
+}
+
+/* SECCIÓN DE INFORMACIÓN */
+.info-section {
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #212a31;
+  margin: 0 0 15px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.info-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.info-item label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #5a6c7d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-item p {
+  font-size: 13px;
+  color: #212a31;
+  margin: 0;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 3px solid #e0e0e0;
+}
+
+.info-item p.destacado {
+  background: #fff9e6;
+  border-left-color: #ffc107;
+  font-weight: 600;
+  color: #856404;
+}
+
+.info-item p.riesgo {
+  background: #fff3e0;
+  border-left-color: #ff9800;
+  color: #e65100;
+  font-weight: 600;
+}
+
+.info-item p.invima {
+  background: #e3f2fd;
+  border-left-color: #2196f3;
+  color: #1565c0;
+  font-weight: 600;
+}
+
+/* BOTÓN EDITAR */
 .edit-btn {
   background: #00bab3;
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 186, 179, 0.3);
 }
 
 .edit-btn:hover {
-  background: #6fc232;
+  background: #009991;
   transform: translateY(-2px);
-}
-
-/* ELIMINAR */
-.delete-btn {
-  background: #e74c3c;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.delete-btn:hover {
-  background: #c0392b;
-  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 186, 179, 0.4);
 }
 
 /* BOTÓN HOME */
@@ -426,5 +656,22 @@ export default {
 
 .btn-home:active {
   transform: scale(0.95);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .equipo-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .header-actions {
+    align-self: flex-start;
+    flex-wrap: wrap;
+  }
 }
 </style>

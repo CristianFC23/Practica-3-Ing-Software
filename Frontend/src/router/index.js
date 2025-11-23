@@ -8,6 +8,7 @@ import HomeView from '@/components/HomeView.vue'
 // import NuevoLaboratorista from '@/components/NuevoLaboratorista.vue'
 import EquiposView from'@/components/EquiposView.vue'
 import DetallesView from '@/components/DetallesView.vue'
+import CrearEquipo from '@/components/CrearEquipo.vue'
 const routes = [
   {
     path: '/',
@@ -23,6 +24,11 @@ const routes = [
     path: '/detalles',
     name: 'detalles',
     component: DetallesView
+  },
+  { 
+    path: '/crear-equipo',
+    name: 'crear-equipo',
+    component: CrearEquipo
   }
 ]
 

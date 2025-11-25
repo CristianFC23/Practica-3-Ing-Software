@@ -37,50 +37,53 @@
           <!-- Columna 1: Gráfico de torta -->
           <div class="chart-container">
             <h3 class="chart-title">Distribución de Equipos</h3>
-            <div class="pie-chart">
-              <svg viewBox="0 0 200 200" class="pie-svg">
-                <!-- Círculo de fondo -->
-                <circle cx="100" cy="100" r="80" fill="transparent" />
-                
-                <!-- Segmentos de la torta -->
-                <path 
-                  v-for="(segment, index) in pieSegments" 
-                  :key="index"
-                  :d="segment.path" 
-                  :fill="segment.color"
-                  class="pie-segment"
-                  @mouseenter="hoveredSegment = index"
-                  @mouseleave="hoveredSegment = null"
-                  :class="{ 'hovered': hoveredSegment === index }"
-                />
-                
-                <!-- Círculo central para hacer efecto donut -->
-                <circle cx="100" cy="100" r="50" fill="#ffffff" />
-                
-                <!-- Texto central -->
-                <text x="100" y="95" text-anchor="middle" class="total-label">Total</text>
-                <text x="100" y="115" text-anchor="middle" class="total-number">{{ totalEquipos }}</text>
-              </svg>
-            </div>
             
-            <div class="chart-legend">
-              <div class="legend-item" 
-                   @mouseenter="hoveredSegment = 0"
-                   @mouseleave="hoveredSegment = null">
-                <span class="legend-color activo"></span>
-                <span>Activos: {{ equiposData.activos }}</span>
+            <div class="chart-content-wrapper">
+              <div class="pie-chart">
+                <svg viewBox="0 0 200 200" class="pie-svg">
+                  <!-- Círculo de fondo -->
+                  <circle cx="100" cy="100" r="80" fill="transparent" />
+                  
+                  <!-- Segmentos de la torta -->
+                  <path 
+                    v-for="(segment, index) in pieSegments" 
+                    :key="index"
+                    :d="segment.path" 
+                    :fill="segment.color"
+                    class="pie-segment"
+                    @mouseenter="hoveredSegment = index"
+                    @mouseleave="hoveredSegment = null"
+                    :class="{ 'hovered': hoveredSegment === index }"
+                  />
+                  
+                  <!-- Círculo central para hacer efecto donut -->
+                  <circle cx="100" cy="100" r="50" fill="#ffffff" />
+                  
+                  <!-- Texto central -->
+                  <text x="100" y="95" text-anchor="middle" class="total-label">Total</text>
+                  <text x="100" y="115" text-anchor="middle" class="total-number">{{ totalEquipos }}</text>
+                </svg>
               </div>
-              <div class="legend-item"
-                   @mouseenter="hoveredSegment = 1"
-                   @mouseleave="hoveredSegment = null">
-                <span class="legend-color inactivo"></span>
-                <span>Inactivos: {{ equiposData.inactivos }}</span>
-              </div>
-              <div class="legend-item"
-                   @mouseenter="hoveredSegment = 2"
-                   @mouseleave="hoveredSegment = null">
-                <span class="legend-color baja"></span>
-                <span>De Baja: {{ equiposData.baja }}</span>
+              
+              <div class="chart-legend">
+                <div class="legend-item" 
+                     @mouseenter="hoveredSegment = 0"
+                     @mouseleave="hoveredSegment = null">
+                  <span class="legend-color activo"></span>
+                  <span>Activos: {{ equiposData.activos }}</span>
+                </div>
+                <div class="legend-item"
+                     @mouseenter="hoveredSegment = 1"
+                     @mouseleave="hoveredSegment = null">
+                  <span class="legend-color inactivo"></span>
+                  <span>Inactivos: {{ equiposData.inactivos }}</span>
+                </div>
+                <div class="legend-item"
+                     @mouseenter="hoveredSegment = 2"
+                     @mouseleave="hoveredSegment = null">
+                  <span class="legend-color baja"></span>
+                  <span>De Baja: {{ equiposData.baja }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -240,6 +243,7 @@ html, body {
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  gap: 15px;
 }
 
 .main-logo {
@@ -255,6 +259,7 @@ html, body {
   gap: 20px;
   justify-content: flex-end;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .sede-btn {
@@ -268,6 +273,7 @@ html, body {
   color: #244652;
   font-weight: 600;
   font-size: 20px;
+  white-space: nowrap;
 }
 
 .sede-btn:hover {
@@ -305,7 +311,7 @@ html, body {
   flex-direction: column;
   gap: 18px;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .dashboard-title {
@@ -322,6 +328,7 @@ html, body {
   gap: 18px;
   flex: 1;
   overflow: hidden;
+  min-height: 0;
 }
 
 /* Contenedor del gráfico (columna 1) */
@@ -336,6 +343,17 @@ html, body {
   justify-content: center;
   gap: 15px;
   border-left: 4px solid #00bab3;
+  min-height: 0;
+}
+
+.chart-content-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
 }
 
 .chart-title {
@@ -348,8 +366,9 @@ html, body {
 
 .pie-chart {
   width: 100%;
-  max-width: 240px;
+  max-width: 100%;
   aspect-ratio: 1;
+  flex-shrink: 0;
 }
 
 .pie-svg {
@@ -385,9 +404,9 @@ html, body {
 .chart-legend {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  width: 100%;
-  max-width: 240px;
+  gap: 12px;
+  width: auto;
+  min-width: 150px;
 }
 
 .legend-item {
@@ -431,6 +450,7 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  overflow: auto;
 }
 
 .equipo-card {
@@ -444,6 +464,7 @@ html, body {
   transition: all 0.3s ease;
   border-left: 4px solid;
   flex: 1;
+  min-height: 120px;
 }
 
 .equipo-card:hover {
@@ -515,6 +536,7 @@ html, body {
   gap: 40px;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .footer {
@@ -536,5 +558,295 @@ html, body {
   width: auto;
   object-fit: contain;
   filter: brightness(0) invert(1);
+}
+
+/* ============================================
+   MEDIA QUERIES PARA RESPONSIVIDAD
+   ============================================ */
+
+/* Tablets y pantallas medianas (hasta 1024px) */
+@media (max-width: 1024px) {
+  .top-section {
+    padding: 20px 25px 10px 25px;
+  }
+
+  .main-logo {
+    height: 60px;
+  }
+
+  .sede-btn {
+    padding: 8px 20px;
+    font-size: 16px;
+  }
+
+  .dashboard-card {
+    padding: 20px;
+  }
+
+  .dashboard-title {
+    font-size: 20px;
+  }
+
+  .chart-title {
+    font-size: 16px;
+  }
+
+  .equipo-card h3 {
+    font-size: 16px;
+  }
+}
+
+/* Rango específico: Leyendas debajo del gráfico (1100px a 700px) */
+@media (max-width: 1100px) and (min-width: 700px) {
+  .chart-content-wrapper {
+    flex-direction: column;
+    gap: 20px;
+    max-width: 100%;
+  }
+
+  .pie-chart {
+    max-width: 260px;
+  }
+
+  .chart-legend {
+    flex-direction: row;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+    min-width: auto;
+  }
+
+  .legend-item {
+    flex-direction: row;
+  }
+}
+
+/* Tablets pequeños y móviles horizontales (hasta 768px) */
+@media (max-width: 768px) {
+  .top-section {
+    padding: 15px 15px 10px 15px;
+    gap: 10px;
+  }
+
+  .header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .main-logo {
+    height: 50px;
+  }
+
+  .sedes-row {
+    width: 100%;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .sede-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    flex: 1;
+    min-width: 80px;
+  }
+
+  .dashboard-card {
+    padding: 15px;
+    border-radius: 20px;
+  }
+
+  .dashboard-title {
+    font-size: 18px;
+  }
+
+  /* El grid se convierte en una sola columna */
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    overflow-y: auto;
+  }
+
+  .chart-container {
+    padding: 15px;
+  }
+
+  .chart-content-wrapper {
+    gap: 20px;
+    max-width: 350px;
+  }
+
+  .chart-legend {
+    width: auto;
+    min-width: 140px;
+  }
+
+  .equipos-column {
+    gap: 12px;
+  }
+
+  .equipo-card {
+    padding: 15px;
+    min-height: 100px;
+  }
+
+  .equipo-card h3 {
+    font-size: 15px;
+  }
+
+  .equipo-card p {
+    font-size: 12px;
+  }
+
+  .footer-logos {
+    gap: 20px;
+  }
+
+  .footer-logo {
+    height: 25px;
+  }
+}
+
+/* Móviles pequeños (hasta 480px) */
+@media (max-width: 480px) {
+  .top-section {
+    padding: 10px 10px 8px 10px;
+  }
+
+  .main-logo {
+    height: 40px;
+  }
+
+  .sedes-row {
+    gap: 8px;
+  }
+
+  .sede-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 10px;
+  }
+
+  .dashboard-card {
+    padding: 12px;
+    border-radius: 16px;
+    gap: 12px;
+  }
+
+  .dashboard-title {
+    font-size: 16px;
+  }
+
+  .chart-container {
+    padding: 12px;
+  }
+
+  .chart-title {
+    font-size: 14px;
+  }
+
+  .chart-content-wrapper {
+    gap: 15px;
+    max-width: 240px;
+  }
+
+  .chart-legend {
+    min-width: 120px;
+  }
+
+  .legend-item {
+    font-size: 11px;
+  }
+
+  .total-label {
+    font-size: 10px;
+  }
+
+  .total-number {
+    font-size: 16px;
+  }
+
+  .chart-content-wrapper {
+    gap: 10px;
+    max-width: 200px;
+  }
+
+  .chart-legend {
+    min-width: 100px;
+  }
+
+  .legend-item {
+    font-size: 10px;
+    padding: 4px;
+    gap: 6px;
+  }
+
+  .legend-color {
+    width: 12px;
+    height: 12px;
+  }
+
+  .equipos-column {
+    gap: 10px;
+  }
+
+  .equipo-card {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .equipo-card h3 {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  .equipo-card p {
+    font-size: 11px;
+    margin-bottom: 12px;
+  }
+
+  .equipo-btn {
+    padding: 8px 16px;
+    font-size: 12px;
+    border-radius: 8px;
+  }
+
+  .footer-logos {
+    gap: 15px;
+  }
+
+  .footer-logo-item {
+    padding: 3px 10px;
+  }
+
+  .footer-logo {
+    height: 20px;
+  }
+}
+
+/* Móviles extra pequeños (hasta 360px) */
+@media (max-width: 360px) {
+  .sede-btn {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+
+  .dashboard-title {
+    font-size: 14px;
+  }
+
+  .chart-content-wrapper {
+    gap: 8px;
+    max-width: 180px;
+  }
+
+  .chart-legend {
+    min-width: 90px;
+  }
+
+  .legend-item {
+    font-size: 9px;
+    gap: 4px;
+  }
 }
 </style>

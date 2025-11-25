@@ -56,16 +56,23 @@
             <p class="results-count">
               {{ equiposFiltrados.length }} equipo(s) encontrado(s)
             </p>
-            
-            <div v-for="equipo in equiposFiltrados" :key="equipo.id" class="equipo-card">
+
+            <div
+              v-for="equipo in equiposFiltrados"
+              :key="equipo.id"
+              class="equipo-card"
+            >
+
               <!-- Header del Equipo -->
               <div class="equipo-header">
-                <div>
-                  <h3 class="equipo-nombre">{{ equipo.nombre }}</h3>
-                  <p class="equipo-codigo">{{ equipo.codigo }}</p>
+                <div class="equipo-header-info">
+                  <h3 class="equipo-nombre">{{ equipo.nombre_equipo }}</h3>
+                  <p class="equipo-codigo">{{ equipo.codigo_inventario }}</p>
                 </div>
                 <div class="header-actions">
-                  <span :class="['badge-estado', equipo.estado === 'activo' ? 'badge-activo' : 'badge-inactivo']">
+                  <span
+                    :class="['badge-estado', equipo.estado === 'activo' ? 'badge-activo' : 'badge-inactivo']"
+                  >
                     {{ equipo.estado === 'activo' ? '● Activo' : '● Inactivo' }}
                   </span>
                   <button class="edit-btn" @click.stop="editarEquipo(equipo)">
@@ -78,64 +85,60 @@
               <div class="info-section">
                 <h4 class="section-title">📋 Información General</h4>
                 <div class="info-grid">
+                  
                   <div class="info-item">
                     <label>Proceso:</label>
-                    <p>{{ equipo.proceso }}</p>
+                    <p>{{ equipo.servicio }}</p>
                   </div>
+
                   <div class="info-item">
                     <label>Nombre del equipo:</label>
-                    <p>{{ equipo.nombre }}</p>
+                    <p>{{ equipo.nombre_equipo }}</p>
                   </div>
+
                   <div class="info-item">
                     <label>Código de inventario:</label>
-                    <p class="destacado">{{ equipo.codigo }}</p>
+                    <p class="destacado">{{ equipo.codigo_inventario }}</p>
                   </div>
+
                   <div class="info-item">
                     <label>Código IPS:</label>
-                    <p>{{ equipo.codigoIPS }}</p>
+                    <p>{{ equipo.codigo_ips }}</p>
                   </div>
+
                   <div class="info-item">
                     <label>Código ECRI:</label>
-                    <p>{{ equipo.codigoECRI }}</p>
+                    <p>{{ equipo.codigo_ecri }}</p>
                   </div>
+
                   <div class="info-item">
                     <label>Responsable:</label>
-                    <p>{{ equipo.responsable }}</p>
+                    <p>{{ equipo.responsable_proceso }}</p>
                   </div>
+
                   <div class="info-item full-width">
                     <label>Ubicación física:</label>
-                    <p>{{ equipo.ubicacion }}</p>
+                    <p>{{ equipo.ubicacion_fisica }}</p>
                   </div>
+
                   <div class="info-item">
                     <label>Marca:</label>
                     <p>{{ equipo.marca }}</p>
                   </div>
+
                   <div class="info-item">
                     <label>Modelo:</label>
                     <p>{{ equipo.modelo }}</p>
                   </div>
+
                   <div class="info-item">
                     <label>Serie:</label>
                     <p>{{ equipo.serie }}</p>
                   </div>
-                  <div class="info-item full-width">
-                    <label>Clasificación eje misional:</label>
-                    <p>{{ equipo.clasificacionMisional }}</p>
-                  </div>
-                  <div class="info-item">
-                    <label>Clasificación IPS:</label>
-                    <p>{{ equipo.clasificacionIPS }}</p>
-                  </div>
-                  <div class="info-item">
-                    <label>Clasificación por riesgo:</label>
-                    <p class="riesgo">{{ equipo.clasificacionRiesgo }}</p>
-                  </div>
-                  <div class="info-item full-width">
-                    <label>Registro Invima:</label>
-                    <p class="invima">{{ equipo.registroInvima }}</p>
-                  </div>
+
                 </div>
               </div>
+
             </div>
 
           </div>
@@ -147,6 +150,158 @@
 </template>
 
 <script>
+import { useRoute, useRouter } from "vue-router";
+import { ref, computed, onMounted } from "vue";
+import axios from "axios";
+
+export default {
+  setup() {
+    const API_URL = "http://127.0.0.1:8000/api/equipos/";
+
+    const route = useRoute();
+    const router = useRouter();
+
+    const sedeActual = ref(route.query.sede || "Sede desconocida");
+    const categoriaActual = ref(route.query.categoria || "todos");
+
+    const searchQuery = ref("");
+
+    const loading = ref(false);
+    const error = ref(null);
+
+    const equipos = ref([]);
+
+    // =============================
+    // 🔥 CARGAR DESDE BACKEND DJANGO
+    // =============================
+    const cargarEquipos = async () => {
+      loading.value = true;
+      error.value = null;
+
+      try {
+        const res = await axios.get(API_URL);
+        equipos.value = res.data;
+      } catch (e) {
+        error.value = "No se pudieron cargar los equipos desde el servidor.";
+      } finally {
+        loading.value = false;
+      }
+    };
+
+    // =============================
+    // 🔥 FILTRADO EN VIVO
+    // =============================
+    const equiposFiltrados = computed(() => {
+  let resultado = equipos.value;
+
+  // 🔥 FILTRAR POR SEDE
+  if (sedeActual.value && sedeActual.value !== "todas") {
+    resultado = resultado.filter((e) =>
+      (e.sede || "").toLowerCase() === sedeActual.value.toLowerCase()
+    );
+  }
+
+  // 🔥 FILTRAR POR CATEGORÍA
+  if (categoriaActual.value !== "todos") {
+    resultado = resultado.filter(
+      (e) =>
+        (e.estado || "").toLowerCase() ===
+        categoriaActual.value.toLowerCase()
+    );
+  }
+
+  // 🔥 BUSCADOR
+  if (searchQuery.value.trim() !== "") {
+    const q = searchQuery.value.toLowerCase();
+
+    resultado = resultado.filter((e) =>
+      Object.values(e).some(
+        (v) => typeof v === "string" && v.toLowerCase().includes(q)
+      )
+    );
+  }
+
+  return resultado;
+});
+
+    // const equiposFiltrados = computed(() => {
+    //   let resultado = equipos.value;
+
+    //   if (categoriaActual.value !== "todos") {
+    //     resultado = resultado.filter(
+    //       (e) =>
+    //         (e.estado || "").toLowerCase() ===
+    //         categoriaActual.value.toLowerCase()
+    //     );
+    //   }
+
+    //   if (searchQuery.value.trim() !== "") {
+    //     const q = searchQuery.value.toLowerCase();
+
+    //     resultado = resultado.filter((e) =>
+    //       Object.values(e).some(
+    //         (v) => typeof v === "string" && v.toLowerCase().includes(q)
+    //       )
+    //     );
+    //   }
+
+    //   return resultado;
+    // });
+
+    const refrescarLista = () => cargarEquipos();
+
+    // =============================
+    // 🔥 NAVEGACIÓN
+    // =============================
+    const editarEquipo = (equipo) => {
+      console.log("Equipo recibido:", equipo);   // <-- ESTE LOG ES EL QUE NECESITAMOS
+      router.push({
+        name: "detalles",
+        params: { id: equipo.id },
+        query: {
+          sede: sedeActual.value,
+          categoria: categoriaActual.value,
+        },
+      });
+    };
+
+    
+
+    const agregarEquipo = () => {
+      router.push({
+        name: "crear-equipo",
+        query: {
+          sede: sedeActual.value,
+          categoria: categoriaActual.value,
+        },
+      });
+    };
+
+    const volverDashboard = () => {
+      router.push({ name: "home" });
+    };
+
+    onMounted(() => cargarEquipos());
+
+    return {
+      sedeActual,
+      categoriaActual,
+      searchQuery,
+      loading,
+      error,
+      equipos,
+      equiposFiltrados,
+      refrescarLista,
+      editarEquipo,
+      agregarEquipo,
+      volverDashboard,
+    };
+  },
+};
+</script>
+
+
+<!-- <script>
 import { useRoute, useRouter } from 'vue-router';
 import { ref, computed } from 'vue';
 
@@ -258,7 +413,7 @@ export default {
 
     const agregarEquipo = () => {
       router.push({
-        name: 'crear-equipo',  // ← Asegúrate que coincida con el name en router
+        name: 'crear-equipo',
         query: {
           sede: sedeActual.value,
           categoria: categoriaActual.value
@@ -285,7 +440,7 @@ export default {
     };
   }
 };
-</script>
+</script> -->
 
 <style scoped>
 .page-container {
@@ -293,9 +448,9 @@ export default {
   justify-content: center;
   align-items: flex-start;
   min-height: 100vh;
-  overflow: hidden;
   padding: 50px 20px;
   background: #244652;
+  box-sizing: border-box;
 }
 
 .dashboard-cards {
@@ -316,6 +471,7 @@ export default {
   display: flex;
   align-items: flex-start;
   margin-bottom: 20px;
+  gap: 15px;
 }
 
 .card-icon {
@@ -325,14 +481,19 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 15px;
   background: #244652;
+  flex-shrink: 0;
 }
 
 .icon {
   width: 28px;
   height: 28px;
   color: white;
+}
+
+.card-title {
+  flex: 1;
+  min-width: 0;
 }
 
 .card-title h3 {
@@ -353,7 +514,7 @@ export default {
   display: flex;
   gap: 10px;
   margin-bottom: 10px;
-  align-items: center;
+  align-items: stretch;
 }
 
 /* INPUT BUSCADOR */
@@ -365,6 +526,7 @@ export default {
   font-size: 14px;
   transition: 0.2s ease;
   background: rgba(255, 255, 255, 0.9);
+  min-width: 0;
 }
 
 .search-input:focus {
@@ -494,6 +656,12 @@ export default {
   margin-bottom: 20px;
   padding-bottom: 15px;
   border-bottom: 2px solid #f0f0f0;
+  gap: 15px;
+}
+
+.equipo-header-info {
+  flex: 1;
+  min-width: 0;
 }
 
 .equipo-nombre {
@@ -501,6 +669,7 @@ export default {
   font-weight: 700;
   color: #212a31;
   margin: 0 0 5px 0;
+  word-wrap: break-word;
 }
 
 .equipo-codigo {
@@ -508,12 +677,14 @@ export default {
   color: #00bab3;
   font-weight: 600;
   margin: 0;
+  word-wrap: break-word;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .badge-estado {
@@ -523,6 +694,7 @@ export default {
   border-radius: 20px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .badge-activo {
@@ -584,6 +756,7 @@ export default {
   background: #f8f9fa;
   border-radius: 8px;
   border-left: 3px solid #e0e0e0;
+  word-wrap: break-word;
 }
 
 .info-item p.destacado {
@@ -619,6 +792,7 @@ export default {
   font-weight: 600;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(0, 186, 179, 0.3);
+  white-space: nowrap;
 }
 
 .edit-btn:hover {
@@ -646,6 +820,7 @@ export default {
   box-shadow: 0 4px 16px rgba(129, 215, 66, 0.3);
   transition: 0.3s ease;
   z-index: 1000;
+  padding-bottom: 7px;
 }
 
 .btn-home:hover {
@@ -658,20 +833,269 @@ export default {
   transform: scale(0.95);
 }
 
-/* RESPONSIVE */
+/* ============================================
+   MEDIA QUERIES PARA RESPONSIVIDAD
+   ============================================ */
+
+/* Tablets grandes (hasta 1024px) */
+@media (max-width: 1024px) {
+  .page-container {
+    padding: 40px 20px;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .card-title h3 {
+    font-size: 18px;
+  }
+
+  .equipo-nombre {
+    font-size: 20px;
+  }
+}
+
+/* Tablets pequeños (hasta 768px) */
 @media (max-width: 768px) {
+  .page-container {
+    padding: 80px 15px 20px;
+  }
+
+  .card {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .card-header {
+    flex-direction: row;
+    gap: 12px;
+  }
+
+  .card-icon {
+    width: 45px;
+    height: 45px;
+  }
+
+  .icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .card-title h3 {
+    font-size: 16px;
+  }
+
+  .card-title p {
+    font-size: 12px;
+  }
+
+  /* Búsqueda en columna */
+  .search-container {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .add-btn {
+    width: 100%;
+    padding: 12px;
+  }
+
+  /* Header de equipo en columna */
+  .equipo-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .header-actions {
+    align-self: stretch;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .badge-estado,
+  .edit-btn {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .equipo-card {
+    padding: 18px;
+  }
+
+  .equipo-nombre {
+    font-size: 18px;
+  }
+
+  /* Grid de información en 1 columna */
   .info-grid {
     grid-template-columns: 1fr;
   }
 
-  .equipo-header {
-    flex-direction: column;
-    gap: 10px;
+  .info-item.full-width {
+    grid-column: 1;
   }
 
-  .header-actions {
-    align-self: flex-start;
-    flex-wrap: wrap;
+  .section-title {
+    font-size: 14px;
+  }
+
+  .ubicaciones-list {
+    max-height: 60vh;
+  }
+
+  /* Botón home más pequeño */
+  .btn-home {
+    width: 50px;
+    height: 50px;
+    font-size: 22px;
+    top: 15px;
+    left: 15px;
+  }
+}
+
+/* Móviles (hasta 480px) */
+@media (max-width: 480px) {
+  .page-container {
+    padding: 70px 10px 15px;
+  }
+
+  .card {
+    padding: 15px;
+    border-radius: 18px;
+  }
+
+  .card-header {
+    margin-bottom: 15px;
+  }
+
+  .card-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .card-title h3 {
+    font-size: 14px;
+  }
+
+  .card-title p {
+    font-size: 11px;
+  }
+
+  .search-input {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .add-btn {
+    padding: 10px;
+    font-size: 12px;
+  }
+
+  .refresh-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .equipo-card {
+    padding: 15px;
+    border-radius: 14px;
+  }
+
+  .equipo-nombre {
+    font-size: 16px;
+  }
+
+  .equipo-codigo {
+    font-size: 11px;
+  }
+
+  .badge-estado {
+    font-size: 10px;
+    padding: 6px 12px;
+  }
+
+  .edit-btn {
+    padding: 8px 16px;
+    font-size: 11px;
+  }
+
+  .section-title {
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+
+  .info-item label {
+    font-size: 10px;
+  }
+
+  .info-item p {
+    font-size: 12px;
+    padding: 7px 10px;
+  }
+
+  .results-count {
+    font-size: 11px;
+  }
+
+  .ubicaciones-list {
+    gap: 15px;
+  }
+
+  /* Botón home aún más pequeño */
+  .btn-home {
+    width: 45px;
+    height: 45px;
+    font-size: 20px;
+    top: 12px;
+    left: 12px;
+  }
+}
+
+/* Móviles pequeños (hasta 360px) */
+@media (max-width: 360px) {
+  .page-container {
+    padding: 65px 8px 12px;
+  }
+
+  .card {
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .card-title h3 {
+    font-size: 13px;
+  }
+
+  .equipo-nombre {
+    font-size: 15px;
+  }
+
+  .add-btn {
+    font-size: 11px;
+  }
+
+  .info-item p {
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+
+  .btn-home {
+    width: 42px;
+    height: 42px;
+    font-size: 18px;
+    top: 10px;
+    left: 10px;
   }
 }
 </style>

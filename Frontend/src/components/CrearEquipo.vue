@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <button @click="cancelar" class="btn-home">❌</button>
+    <button @click="volverDashboard" class="btn-home">🏠</button>
 
     <div class="detalles-container">
       <!-- Columna Izquierda: Foto y Botones -->
@@ -432,12 +432,19 @@ export default {
       }
     };
 
+    const volverDashboard = () => {
+      if (confirm('¿Está seguro de cancelar? Se perderán los datos no guardados.')) {
+        router.push({ name: 'home' });
+      }
+    };
+
     return {
       nuevoEquipo,
       fileInput,
       handleImageUpload,
       guardarEquipo,
-      cancelar
+      cancelar,
+      volverDashboard
     };
   }
 };
@@ -472,6 +479,7 @@ export default {
   box-shadow: 0 4px 16px rgba(129, 215, 66, 0.3);
   transition: 0.3s ease;
   z-index: 1000;
+  padding-bottom: 7px;
 }
 
 .btn-home:hover {

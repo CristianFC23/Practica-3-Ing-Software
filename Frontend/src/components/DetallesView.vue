@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <button @click="volverAtras" class="btn-home">❌</button>
+    <button @click="volverDashboard" class="btn-home">🏠</button>
 
     <div class="detalles-container">
       <!-- Columna Izquierda: Foto y Botones -->
@@ -30,6 +30,9 @@
         <div class="dashboard-card">
           <h2 class="dashboard-title">{{ equipoDetalle.nombreEquipo }}</h2>
           <p class="codigo-principal">{{ equipoDetalle.codigoInventario }}</p>
+          <span :class="['badge-estado', equipoDetalle.estado === 'activo' ? 'badge-activo' : 'badge-inactivo']">
+            {{ equipoDetalle.estado === 'activo' ? '● Activo' : '● Inactivo' }}</span>
+  
           
           <div class="info-scrolleable">
             
@@ -38,12 +41,12 @@
               <h3 class="section-title">📋 Información General</h3>
               <div class="info-grid">
                 <div class="info-item">
-                  <label>Proceso:</label>
-                  <p>{{ equipoDetalle.proceso }}</p>
+                  <label>servicio:</label>
+                  <p>{{ equipoDetalle.servicio }}</p>
                 </div>
                 <div class="info-item">
-                  <label>Nombre del equipo:</label>
-                  <p>{{ equipoDetalle.nombreEquipo }}</p>
+                  <label>Sede:</label>
+                  <p>{{ equipoDetalle.sede }}</p>
                 </div>
                 <div class="info-item">
                   <label>Código de inventario:</label>
@@ -298,8 +301,10 @@ export default {
     // Datos del equipo - En producción, estos vendrían de una API
     const equipoDetalle = ref({
       // Información General
-      proceso: 'Diagnóstico por Imágenes',
+      servicio: 'Diagnóstico por Imágenes',
       nombreEquipo: 'Rayos X Digital',
+      sede: 'SIU',
+      estado: 'activo',
       codigoInventario: 'RX-001-LIME-2023',
       codigoIPS: 'IPS-RX-2023-045',
       codigoECRI: '16-725',
@@ -370,10 +375,15 @@ export default {
       });
     };
 
+    const volverDashboard = () => {
+      router.push({ name: 'home' });
+    };
+
     return {
       equipoId,
       equipoDetalle,
-      volverAtras
+      volverAtras,
+      volverDashboard
     };
   }
 };
@@ -409,6 +419,7 @@ export default {
   box-shadow: 0 4px 16px rgba(129, 215, 66, 0.3);
   transition: 0.3s ease;
   z-index: 1000;
+  padding-bottom: 7px;
 }
 
 .btn-home:hover {
@@ -653,6 +664,29 @@ export default {
   border-left-color: #e74c3c;
   color: #c62828;
   font-weight: 600;
+}
+
+.badge-estado {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 15px;
+  margin-top: -5px;
+}
+
+.badge-inactivo {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #e74c3c;
+}
+
+.badge-activo {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #81d742;
 }
 
 /* RESPONSIVE */

@@ -70,11 +70,30 @@
                   <p class="equipo-codigo">{{ equipo.codigo_inventario }}</p>
                 </div>
                 <div class="header-actions">
-                  <span
+                  <!-- <span
                     :class="['badge-estado', equipo.estado === 'activo' ? 'badge-activo' : 'badge-inactivo']"
                   >
                     {{ equipo.estado === 'activo' ? '● Activo' : '● Inactivo' }}
-                  </span>
+                  </span> -->
+                  <span
+                  :class="[
+                    'badge-estado',
+                    equipo.estado === 'activo'
+                      ? 'badge-activo'
+                      : equipo.estado === 'inactivo'
+                      ? 'badge-inactivo'
+                      : 'badge-baja'
+                  ]"
+                >
+                  {{ 
+                    equipo.estado === 'activo'
+                      ? '● Activo'
+                      : equipo.estado === 'inactivo'
+                      ? '● Inactivo'
+                      : '● De Baja'
+                  }}
+                </span>
+
                   <button class="edit-btn" @click.stop="editarEquipo(equipo)">
                     MÁS INFORMACIÓN
                   </button>
@@ -831,6 +850,12 @@ export default {
 
 .btn-home:active {
   transform: scale(0.95);
+}
+
+.badge-baja {
+  background: #fff4e5;
+  color: #e67e22;
+  border: 1px solid #f39c12;
 }
 
 /* ============================================

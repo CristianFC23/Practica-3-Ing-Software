@@ -3,95 +3,112 @@
     <button @click="volverDashboard" class="btn-home">🏠</button>
 
     <div class="detalles-container">
-      <!-- Columna Izquierda: Foto y Botones -->
+      <!-- COLUMNA IZQUIERDA: FOTO Y BOTONES -->
       <div class="columna-izquierda">
         <div class="foto-container">
           <div class="foto-placeholder">
             <p>📷</p>
             <span>Subir foto del equipo</span>
             <input type="file" accept="image/*" @change="handleImageUpload" style="display: none;" ref="fileInput" />
-            <button class="upload-btn" @click="$refs.fileInput.click()">
-              Seleccionar imagen
-            </button>
+            <button class="upload-btn" @click="$refs.fileInput.click()">Seleccionar imagen</button>
+            <p v-if="imagenNombre" class="imagen-nombre">{{ imagenNombre }}</p>
           </div>
         </div>
 
-        <button class="action-btn save-btn" @click="guardarEquipo">
-          💾 Guardar Equipo
-        </button>
-
-        <button class="action-btn cancel-btn" @click="cancelar">
-          ❌ Cancelar
-        </button>
+        <button class="action-btn save-btn" @click="guardarEquipo">💾 Guardar Equipo</button>
+        <button class="action-btn cancel-btn" @click="cancelar">❌ Cancelar</button>
       </div>
 
-      <!-- Columna Derecha: Formulario Scrolleable -->
+      <!-- COLUMNA DERECHA: FORM -->
       <div class="columna-derecha">
         <div class="dashboard-card">
           <h2 class="dashboard-title">Agregar Nuevo Equipo Médico</h2>
           <p class="subtitulo">Complete la información del equipo</p>
-          
+
           <div class="info-scrolleable">
-            
+
             <!-- 1. INFORMACIÓN GENERAL -->
             <div class="info-section">
               <h3 class="section-title">📋 Información General</h3>
               <div class="info-grid">
                 <div class="info-item">
-                  <label>Proceso: <span class="required">*</span></label>
-                  <input type="text" v-model="nuevoEquipo.proceso" placeholder="Ej: Diagnóstico por Imágenes" />
+                  <label>Servicio / Proceso: <span class="required">*</span></label>
+                  <input type="text" v-model="nuevoEquipo.servicio" placeholder="Ej: Diagnóstico por Imágenes" />
                 </div>
+
+                <div class="info-item">
+                  <label>Sede: <span class="required">*</span></label>
+                  <select v-model="nuevoEquipo.sede">
+                    <option value="">Seleccionar sede</option>
+                    <option value="Prado">Prado</option>
+                    <option value="SIU">SIU</option>
+                    <option value="San Vicente">San Vicente</option>
+                  </select>
+                </div>
+
                 <div class="info-item">
                   <label>Nombre del equipo: <span class="required">*</span></label>
-                  <input type="text" v-model="nuevoEquipo.nombreEquipo" placeholder="Ej: Rayos X Digital" />
+                  <input type="text" v-model="nuevoEquipo.nombre_equipo" placeholder="Ej: Rayos X Digital" />
                 </div>
+
                 <div class="info-item">
                   <label>Código de inventario: <span class="required">*</span></label>
-                  <input type="text" v-model="nuevoEquipo.codigoInventario" placeholder="Ej: RX-001-LIME-2023" />
+                  <input type="text" v-model="nuevoEquipo.codigo_inventario" placeholder="Ej: RX-001-LIME-2023" />
                 </div>
+
                 <div class="info-item">
                   <label>Código IPS:</label>
-                  <input type="text" v-model="nuevoEquipo.codigoIPS" placeholder="Ej: IPS-RX-2023-045" />
+                  <input type="text" v-model="nuevoEquipo.codigo_ips" placeholder="Ej: IPS-RX-2023-045" />
                 </div>
+
                 <div class="info-item">
                   <label>Código ECRI:</label>
-                  <input type="text" v-model="nuevoEquipo.codigoECRI" placeholder="Ej: 16-725" />
+                  <input type="text" v-model="nuevoEquipo.codigo_ecri" placeholder="Ej: 16-725" />
                 </div>
+
                 <div class="info-item">
-                  <label>Responsable: <span class="required">*</span></label>
-                  <input type="text" v-model="nuevoEquipo.responsable" placeholder="Ej: Dr. Carlos Martínez" />
+                  <label>Responsable:</label>
+                  <input type="text" v-model="nuevoEquipo.responsable_proceso" placeholder="Ej: Dr. Carlos Martínez" />
                 </div>
+
                 <div class="info-item full-width">
-                  <label>Ubicación física: <span class="required">*</span></label>
-                  <input type="text" v-model="nuevoEquipo.ubicacionFisica" placeholder="Ej: Sala de Radiología 1 - Piso 2" />
+                  <label>Ubicación física:</label>
+                  <input type="text" v-model="nuevoEquipo.ubicacion_fisica" placeholder="Ej: Sala de Radiología 1 - Piso 2" />
                 </div>
+
                 <div class="info-item">
                   <label>Marca: <span class="required">*</span></label>
                   <input type="text" v-model="nuevoEquipo.marca" placeholder="Ej: Siemens" />
                 </div>
+
                 <div class="info-item">
                   <label>Modelo: <span class="required">*</span></label>
                   <input type="text" v-model="nuevoEquipo.modelo" placeholder="Ej: Luminos Agile Max" />
                 </div>
+
                 <div class="info-item">
                   <label>Serie:</label>
                   <input type="text" v-model="nuevoEquipo.serie" placeholder="Ej: SN-2023-RX-8947" />
                 </div>
+
                 <div class="info-item full-width">
                   <label>Clasificación eje misional:</label>
-                  <input type="text" v-model="nuevoEquipo.clasificacionMisional" placeholder="Ej: Docencia, Investigación, Extensión" />
+                  <input type="text" v-model="nuevoEquipo.clasificacion_eje_misional" placeholder="Ej: Docencia, Investigación, Extensión" />
                 </div>
+
                 <div class="info-item">
                   <label>Clasificación IPS:</label>
-                  <input type="text" v-model="nuevoEquipo.clasificacionIPS" placeholder="Ej: IND" />
+                  <input type="text" v-model="nuevoEquipo.clasificacion_ips" placeholder="Ej: IND" />
                 </div>
+
                 <div class="info-item">
                   <label>Clasificación por riesgo:</label>
-                  <input type="text" v-model="nuevoEquipo.clasificacionRiesgo" placeholder="Ej: Clase IIB - Riesgo Alto" />
+                  <input type="text" v-model="nuevoEquipo.clasificacion_riesgo" placeholder="Ej: Clase IIB - Riesgo Alto" />
                 </div>
+
                 <div class="info-item full-width">
                   <label>Registro Invima:</label>
-                  <input type="text" v-model="nuevoEquipo.registroInvima" placeholder="Ej: 2023DM-0012345" />
+                  <input type="text" v-model="nuevoEquipo.registro_invima" placeholder="Ej: 2023DM-0012345" />
                 </div>
               </div>
             </div>
@@ -102,11 +119,11 @@
               <div class="info-grid">
                 <div class="info-item">
                   <label>Vida útil:</label>
-                  <input type="text" v-model="nuevoEquipo.vidaUtil" placeholder="Ej: 10 años" />
+                  <input type="text" v-model="nuevoEquipo.tiempo_vida_util" placeholder="Ej: 10 años" />
                 </div>
                 <div class="info-item">
                   <label>Fecha de adquisición:</label>
-                  <input type="date" v-model="nuevoEquipo.fechaAdquisicion" />
+                  <input type="date" v-model="nuevoEquipo.fecha_adquisicion" />
                 </div>
                 <div class="info-item">
                   <label>Propietario:</label>
@@ -114,7 +131,7 @@
                 </div>
                 <div class="info-item">
                   <label>Fecha de fabricación:</label>
-                  <input type="text" v-model="nuevoEquipo.fechaFabricacion" placeholder="Ej: 01/2023" />
+                  <input type="text" v-model="nuevoEquipo.fecha_fabricacion" placeholder="Ej: 01/2023" />
                 </div>
                 <div class="info-item">
                   <label>NIT:</label>
@@ -122,31 +139,35 @@
                 </div>
                 <div class="info-item full-width">
                   <label>Proveedor:</label>
-                  <input type="text" v-model="nuevoEquipo.proveedorEquipo" placeholder="Ej: Siemens Healthineers Colombia S.A.S." />
+                  <input type="text" v-model="nuevoEquipo.proveedor_equipo" placeholder="Ej: Siemens Healthineers Colombia S.A.S." />
                 </div>
                 <div class="info-item">
                   <label>¿En garantía?:</label>
-                  <select v-model="nuevoEquipo.enGarantia">
+                  <select v-model="nuevoEquipo.garantia">
                     <option value="">Seleccionar</option>
-                    <option value="Sí">Sí</option>
+                    <option value="Si">Sí</option>
                     <option value="No">No</option>
                   </select>
                 </div>
                 <div class="info-item">
                   <label>Fin de garantía:</label>
-                  <input type="date" v-model="nuevoEquipo.fechaFinGarantia" />
+                  <input type="date" v-model="nuevoEquipo.fecha_fin_garantia" />
                 </div>
                 <div class="info-item">
                   <label>Forma de adquisición:</label>
-                  <input type="text" v-model="nuevoEquipo.formaAdquisicion" placeholder="Ej: Compra directa" />
+                  <input type="text" v-model="nuevoEquipo.forma_adquisicion" placeholder="Ej: Compra directa" />
                 </div>
                 <div class="info-item">
                   <label>Tipo de documento:</label>
-                  <input type="text" v-model="nuevoEquipo.tipoDocumento" placeholder="Ej: Factura" />
+                  <input type="text" v-model="nuevoEquipo.tipo_documento" placeholder="Ej: Factura" />
                 </div>
                 <div class="info-item">
                   <label>Número de documento:</label>
-                  <input type="text" v-model="nuevoEquipo.numeroDocumento" placeholder="Ej: FV-2023-001234" />
+                  <input type="text" v-model="nuevoEquipo.numero_documento" placeholder="Ej: FV-2023-001234" />
+                </div>
+                <div class="info-item">
+                  <label>Valor de compra:</label>
+                  <input type="text" v-model="nuevoEquipo.valor_compra" placeholder="Ej: 150000000" />
                 </div>
               </div>
             </div>
@@ -157,57 +178,58 @@
               <div class="info-grid">
                 <div class="info-item">
                   <label>Hoja de vida:</label>
-                  <select v-model="nuevoEquipo.hojaVida">
+                  <select v-model="nuevoEquipo.hoja_vida">
                     <option value="">Seleccionar</option>
-                    <option value="Sí - Disponible">Sí - Disponible</option>
-                    <option value="No disponible">No disponible</option>
+                    <option value="Si">Sí</option>
+                    <option value="No">No</option>
                   </select>
                 </div>
+
                 <div class="info-item">
                   <label>Registro de importación:</label>
-                  <input type="text" v-model="nuevoEquipo.registroImportacion" placeholder="Ej: RI-2023-0456" />
+                  <input type="text" v-model="nuevoEquipo.registro_importacion" placeholder="Ej: RI-2023-0456" />
                 </div>
+
                 <div class="info-item">
                   <label>Manual de operación:</label>
-                  <select v-model="nuevoEquipo.manualOperacion">
+                  <select v-model="nuevoEquipo.manual_operacion">
                     <option value="">Seleccionar</option>
-                    <option value="Sí - Español">Sí - Español</option>
-                    <option value="Sí - Inglés">Sí - Inglés</option>
-                    <option value="No disponible">No disponible</option>
+                    <option value="Si">Sí</option>
+                    <option value="No">No</option>
                   </select>
                 </div>
+
                 <div class="info-item">
                   <label>Manual de servicio:</label>
-                  <select v-model="nuevoEquipo.manualServicio">
-                    <option value="">Seleccionar</option>
-                    <option value="Sí - Español">Sí - Español</option>
-                    <option value="Sí - Inglés">Sí - Inglés</option>
-                    <option value="No disponible">No disponible</option>
-                  </select>
+                  <input type="text" v-model="nuevoEquipo.manual_servicio" placeholder="Ej: Sí - Español" />
                 </div>
+
                 <div class="info-item">
-                  <label>Guía rápida:</label>
-                  <select v-model="nuevoEquipo.guiaRapida">
+                  <label>Guía rápida de uso:</label>
+                  <select v-model="nuevoEquipo.guia_rapida_uso">
                     <option value="">Seleccionar</option>
-                    <option value="Sí - Disponible">Sí - Disponible</option>
-                    <option value="No disponible">No disponible</option>
+                    <option value="Si">Sí</option>
+                    <option value="No">No</option>
                   </select>
                 </div>
+
                 <div class="info-item">
-                  <label>Instructivo de manejo:</label>
-                  <select v-model="nuevoEquipo.instructivoManejo">
+                  <label>Instructivo manejo rápido:</label>
+                  <select v-model="nuevoEquipo.instructivo_manejo_rapido">
                     <option value="">Seleccionar</option>
-                    <option value="Sí - Disponible">Sí - Disponible</option>
-                    <option value="No disponible">No disponible</option>
+                    <option value="Si">Sí</option>
+                    <option value="No">No</option>
                   </select>
                 </div>
+
                 <div class="info-item">
                   <label>Protocolo Mto. Preventivo:</label>
-                  <input type="text" v-model="nuevoEquipo.protocoloMtoPrev" placeholder="Ej: Cada 6 meses" />
+                  <input type="text" v-model="nuevoEquipo.protocolo_mantenimiento_preventivo" placeholder="Ej: Semestral" />
                 </div>
+
                 <div class="info-item">
-                  <label>Frecuencia metrológica:</label>
-                  <input type="text" v-model="nuevoEquipo.frecuenciaMetrologica" placeholder="Ej: Anual" />
+                  <label>Frecuencia metrológica fabricante:</label>
+                  <input type="text" v-model="nuevoEquipo.frecuencia_metrologica_fabricante" placeholder="Ej: Anual" />
                 </div>
               </div>
             </div>
@@ -218,27 +240,27 @@
               <div class="info-grid">
                 <div class="info-item">
                   <label>Requiere mantenimiento:</label>
-                  <select v-model="nuevoEquipo.requiereMantenimiento">
+                  <select v-model="nuevoEquipo.mantenimiento">
                     <option value="">Seleccionar</option>
-                    <option value="Sí">Sí</option>
+                    <option value="Si">Sí</option>
                     <option value="No">No</option>
                   </select>
                 </div>
                 <div class="info-item">
                   <label>Frecuencia mantenimiento:</label>
-                  <input type="text" v-model="nuevoEquipo.frecuenciaMantenimiento" placeholder="Ej: 2 veces al año" />
+                  <input type="text" v-model="nuevoEquipo.frecuencia_mantenimiento" placeholder="Ej: 2 veces al año" />
                 </div>
                 <div class="info-item">
                   <label>Requiere calibración:</label>
-                  <select v-model="nuevoEquipo.requiereCalibracion">
+                  <select v-model="nuevoEquipo.calibracion">
                     <option value="">Seleccionar</option>
-                    <option value="Sí">Sí</option>
+                    <option value="Si">Sí</option>
                     <option value="No">No</option>
                   </select>
                 </div>
                 <div class="info-item">
                   <label>Frecuencia calibración:</label>
-                  <input type="text" v-model="nuevoEquipo.frecuenciaCalibracion" placeholder="Ej: 1 vez al año" />
+                  <input type="text" v-model="nuevoEquipo.frecuencia_calibracion" placeholder="Ej: 1 vez al año" />
                 </div>
               </div>
             </div>
@@ -253,7 +275,7 @@
                 </div>
                 <div class="info-item full-width">
                   <label>Rango del equipo:</label>
-                  <input type="text" v-model="nuevoEquipo.rangoEquipo" placeholder="Ej: 40-150 kV, 1-500 mAs" />
+                  <input type="text" v-model="nuevoEquipo.rango_equipo" placeholder="Ej: 40-150 kV, 1-500 mAs" />
                 </div>
                 <div class="info-item">
                   <label>Resolución:</label>
@@ -261,11 +283,11 @@
                 </div>
                 <div class="info-item">
                   <label>Rango de trabajo:</label>
-                  <input type="text" v-model="nuevoEquipo.rangoTrabajo" placeholder="Ej: 50-125 kV, 5-320 mAs" />
+                  <input type="text" v-model="nuevoEquipo.rango_trabajo" placeholder="Ej: 50-125 kV, 5-320 mAs" />
                 </div>
                 <div class="info-item full-width">
                   <label>Error máximo permitido:</label>
-                  <input type="text" v-model="nuevoEquipo.errorMaximoPermitido" placeholder="Ej: ±5% en kV, ±10% en mAs" />
+                  <input type="text" v-model="nuevoEquipo.error_max_permitido" placeholder="Ej: ±5% en kV, ±10% en mAs" />
                 </div>
               </div>
             </div>
@@ -284,11 +306,11 @@
                 </div>
                 <div class="info-item">
                   <label>Humedad relativa:</label>
-                  <input type="text" v-model="nuevoEquipo.humedadRelativa" placeholder="Ej: 30% - 75% sin condensación" />
+                  <input type="text" v-model="nuevoEquipo.humedad_relativa" placeholder="Ej: 30% - 75% sin condensación" />
                 </div>
                 <div class="info-item">
-                  <label>Temperatura:</label>
-                  <input type="text" v-model="nuevoEquipo.temperatura" placeholder="Ej: 15°C - 30°C" />
+                  <label>Temperatura máxima:</label>
+                  <input type="text" v-model="nuevoEquipo.temperatura_maxima" placeholder="Ej: 30°C" />
                 </div>
                 <div class="info-item">
                   <label>Dimensiones:</label>
@@ -300,7 +322,43 @@
                 </div>
                 <div class="info-item full-width">
                   <label>Otros:</label>
-                  <textarea v-model="nuevoEquipo.otros" placeholder="Información adicional sobre condiciones de funcionamiento" rows="3"></textarea>
+                  <textarea v-model="nuevoEquipo.otros" placeholder="Información adicional" rows="3"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- 7. INFORMACIÓN EXTRA -->
+            <div class="info-section">
+              <h3 class="section-title">📌 Información Extra del Equipo</h3>
+              <div class="info-grid">
+                <div class="info-item">
+                  <label>Estado:</label>
+                  <select v-model="nuevoEquipo.estado">
+                    <option value="">Seleccionar</option>
+                    <option value="activo">Activo</option>
+                    <option value="inactivo">Inactivo</option>
+                    <option value="baja">De baja</option>
+                  </select>
+                </div>
+
+                <div class="info-item">
+                  <label>Motivo de baja:</label>
+                  <input type="text" v-model="nuevoEquipo.motivo_baja" placeholder="Motivo de baja" />
+                </div>
+
+                <div class="info-item">
+                  <label>Fecha de baja:</label>
+                  <input type="date" v-model="nuevoEquipo.fecha_baja" />
+                </div>
+
+                <div class="info-item">
+                  <label>Justificación traslado:</label>
+                  <input type="text" v-model="nuevoEquipo.justificacion_traslado" placeholder="Ej: Cambio de área" />
+                </div>
+
+                <div class="info-item">
+                  <label>Justificación baja:</label>
+                  <input type="text" v-model="nuevoEquipo.justificacion_baja" placeholder="Ej: Obsoleto" />
                 </div>
               </div>
             </div>
@@ -313,134 +371,179 @@
 </template>
 
 <script>
-import { useRouter, useRoute } from 'vue-router';
-import { ref } from 'vue';
+import { ref } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import axios from "axios";
 
 export default {
   setup() {
     const router = useRouter();
     const route = useRoute();
-    
+
+    const API_URL = "http://127.0.0.1:8000/api/equipos/";
+
     const fileInput = ref(null);
+    const imagenNombre = ref("");
 
-    // Objeto para el nuevo equipo
+    // Objeto con nombres EXACTOS del modelo
     const nuevoEquipo = ref({
-      // Información General
-      proceso: '',
-      nombreEquipo: '',
-      codigoInventario: '',
-      codigoIPS: '',
-      codigoECRI: '',
-      responsable: '',
-      ubicacionFisica: '',
-      marca: '',
-      modelo: '',
-      serie: '',
-      clasificacionMisional: '',
-      clasificacionIPS: '',
-      clasificacionRiesgo: '',
-      registroInvima: '',
+      // 1. INFORMACIÓN GENERAL
+      servicio: "",
+      sede: "",
+      nombre_equipo: "",
+      codigo_inventario: "",
+      codigo_ips: "",
+      codigo_ecri: "",
+      responsable_proceso: "",
+      ubicacion_fisica: "",
+      marca: "",
+      modelo: "",
+      serie: "",
+      clasificacion_eje_misional: "",
+      clasificacion_ips: "",
+      clasificacion_riesgo: "",
+      registro_invima: "",
 
-      // Registro Histórico
-      vidaUtil: '',
-      fechaAdquisicion: '',
-      propietario: '',
-      fechaFabricacion: '',
-      nit: '',
-      proveedorEquipo: '',
-      enGarantia: '',
-      fechaFinGarantia: '',
-      formaAdquisicion: '',
-      tipoDocumento: '',
-      numeroDocumento: '',
+      // 2. REGISTRO HISTÓRICO
+      tiempo_vida_util: "",
+      fecha_adquisicion: "",
+      propietario: "",
+      fecha_fabricacion: "",
+      nit: "",
+      proveedor_equipo: "",
+      garantia: "",
+      fecha_fin_garantia: "",
+      forma_adquisicion: "",
+      tipo_documento: "",
+      numero_documento: "",
+      valor_compra: "",
 
-      // Inventario de Documentos
-      hojaVida: '',
-      registroImportacion: '',
-      manualOperacion: '',
-      manualServicio: '',
-      guiaRapida: '',
-      instructivoManejo: '',
-      protocoloMtoPrev: '',
-      frecuenciaMetrologica: '',
+      // 3. INVENTARIO DE DOCUMENTOS
+      hoja_vida: "",
+      registro_importacion: "",
+      manual_operacion: "",
+      manual_servicio: "",
+      guia_rapida_uso: "",
+      instructivo_manejo_rapido: "",
+      protocolo_mantenimiento_preventivo: "",
+      frecuencia_metrologica_fabricante: "",
 
-      // Información Metrológica Administrativa
-      requiereMantenimiento: '',
-      frecuenciaMantenimiento: '',
-      requiereCalibracion: '',
-      frecuenciaCalibracion: '',
+      // 4. INFORMACIÓN METROLÓGICA ADMINISTRATIVA
+      mantenimiento: "",
+      frecuencia_mantenimiento: "",
+      calibracion: "",
+      frecuencia_calibracion: "",
 
-      // Información Metrológica Técnica
-      magnitud: '',
-      rangoEquipo: '',
-      resolucion: '',
-      rangoTrabajo: '',
-      errorMaximoPermitido: '',
+      // 5. INFORMACIÓN METROLÓGICA TÉCNICA
+      magnitud: "",
+      rango_equipo: "",
+      resolucion: "",
+      rango_trabajo: "",
+      error_max_permitido: "",
 
-      // Condiciones de Funcionamiento
-      voltaje: '',
-      corriente: '',
-      humedadRelativa: '',
-      temperatura: '',
-      dimensiones: '',
-      peso: '',
-      otros: ''
+      // 6. CONDICIONES DE FUNCIONAMIENTO
+      voltaje: "",
+      corriente: "",
+      humedad_relativa: "",
+      temperatura_maxima: "",
+      dimensiones: "",
+      peso: "",
+      otros: "",
+
+      // EXTRA / ESTADO
+      estado: "",
+      motivo_baja: "",
+      fecha_baja: "",
+      justificacion_traslado: "",
+      justificacion_baja: ""
     });
+
+    const camposObligatorios = [
+      "servicio",
+      "sede",
+      "nombre_equipo",
+      "codigo_inventario",
+      "responsable_proceso",
+      "marca",
+      "modelo",
+      "estado"
+    ];
 
     const handleImageUpload = (event) => {
       const file = event.target.files[0];
       if (file) {
-        // Aquí puedes manejar la imagen
-        console.log('Imagen seleccionada:', file.name);
-        // En producción, subirías la imagen a un servidor
+        imagenNombre.value = file.name;
+        // En producción subirías el archivo al servidor o S3 y guardarías la URL
+        console.log("Imagen seleccionada:", file.name);
       }
     };
 
-    const guardarEquipo = () => {
-      // Validar campos obligatorios
-      if (!nuevoEquipo.value.nombreEquipo || !nuevoEquipo.value.codigoInventario || 
-          !nuevoEquipo.value.marca || !nuevoEquipo.value.responsable) {
-        alert('Por favor, complete los campos obligatorios (*)');
-        return;
+    const llenarNI = (obj) => {
+      // copia profunda ligera
+      const payload = {};
+      for (const key in obj) {
+        const val = obj[key];
+        if (val === null || val === undefined) {
+          payload[key] = "NI";
+        } else if (typeof val === "string") {
+          payload[key] = val.trim() === "" ? "NI" : val;
+        } else {
+          // por si hay otros tipos (fechas ya en string; mantén como está)
+          payload[key] = val;
+        }
+      }
+      return payload;
+    };
+
+    const guardarEquipo = async () => {
+      // 1) validar obligatorios (deben tener valor no vacío)
+      for (const campo of camposObligatorios) {
+        const val = nuevoEquipo.value[campo];
+        if (!val || (typeof val === "string" && val.trim() === "")) {
+          alert(`El campo obligatorio "${campo}" está vacío.`);
+          return;
+        }
       }
 
-      // Aquí iría la lógica para guardar en la base de datos
-      console.log('Guardando equipo:', nuevoEquipo.value);
-      
-      // Simulación de guardado exitoso
-      alert('¡Equipo guardado exitosamente!');
-      
-      // Redirigir a la lista de equipos
-      router.push({ 
-        name: 'equipos',
-        query: {
-          sede: route.query.sede,
-          categoria: route.query.categoria
+      // 2) preparar payload: reemplazar string vacíos con "NI" para no obligatorios
+      const payloadRaw = { ...nuevoEquipo.value };
+      // Note: fecha fields are strings (input date returns YYYY-MM-DD) - if empty become "NI"
+      const payload = llenarNI(payloadRaw);
+
+      // 3) enviar al backend
+      try {
+        const res = await axios.post(API_URL, payload);
+        console.log("Respuesta backend:", res.data);
+        alert("¡Equipo creado exitosamente!");
+        router.push({ name: "equipos", query: { sede: route.query.sede, categoria: route.query.categoria }});
+      } catch (error) {
+        console.error("Error al guardar equipo:", error);
+        if (error.response && error.response.data) {
+          // Mostrar mensaje claro del backend
+          const backendMsg = typeof error.response.data === "object"
+            ? JSON.stringify(error.response.data, null, 2)
+            : error.response.data;
+          alert("Error desde backend:\n" + backendMsg);
+        } else {
+          alert("Ocurrió un error al guardar el equipo.");
         }
-      });
+      }
     };
 
     const cancelar = () => {
-      if (confirm('¿Está seguro de cancelar? Se perderán los datos no guardados.')) {
-        router.push({ 
-          name: 'equipos',
-          query: {
-            sede: route.query.sede,
-            categoria: route.query.categoria
-          }
-        });
+      if (confirm("¿Está seguro de cancelar? Se perderán los datos no guardados.")) {
+        router.push({ name: "equipos", query: { sede: route.query.sede, categoria: route.query.categoria }});
       }
     };
 
     const volverDashboard = () => {
-      if (confirm('¿Está seguro de cancelar? Se perderán los datos no guardados.')) {
-        router.push({ name: 'home' });
-      }
+      router.push({ name: "home" });
     };
 
     return {
       nuevoEquipo,
       fileInput,
+      imagenNombre,
       handleImageUpload,
       guardarEquipo,
       cancelar,
@@ -449,6 +552,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .page-container {
@@ -482,20 +586,10 @@ export default {
   padding-bottom: 7px;
 }
 
-.btn-home:hover {
-  transform: scale(1.1);
-  background: #e74c3c;
-  box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
-}
-
-.btn-home:active {
-  transform: scale(0.95);
-}
-
 /* CONTENEDOR PRINCIPAL */
 .detalles-container {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 320px 1fr;
   gap: 25px;
   max-width: 1400px;
   width: 100%;
@@ -533,17 +627,10 @@ export default {
   padding: 20px;
 }
 
-.foto-placeholder p {
-  color: #244652;
-  font-size: 48px;
-  margin: 0;
-}
-
-.foto-placeholder span {
+.imagen-nombre {
+  font-size: 12px;
   color: #5a6c7d;
-  font-size: 14px;
-  font-weight: 600;
-  text-align: center;
+  margin-top: 6px;
 }
 
 .upload-btn {
@@ -557,11 +644,6 @@ export default {
   font-weight: 600;
   transition: all 0.3s ease;
   margin-top: 10px;
-}
-
-.upload-btn:hover {
-  background: #009991;
-  transform: translateY(-2px);
 }
 
 /* BOTONES DE ACCIÓN */
@@ -578,23 +660,10 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.action-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-}
-
-.action-btn:active {
-  transform: translateY(-1px);
-}
-
 .save-btn {
   background: #6fc232;
   color: white;
   border-color: #6fc232;
-}
-
-.save-btn:hover {
-  background: #5da829;
 }
 
 .cancel-btn:hover {
@@ -641,33 +710,10 @@ export default {
   padding-right: 15px;
 }
 
-.info-scrolleable::-webkit-scrollbar {
-  width: 8px;
-}
-
-.info-scrolleable::-webkit-scrollbar-track {
-  background: #f0f0f0;
-  border-radius: 6px;
-}
-
-.info-scrolleable::-webkit-scrollbar-thumb {
-  background: #244652;
-  border-radius: 6px;
-}
-
-.info-scrolleable::-webkit-scrollbar-thumb:hover {
-  background: #212a31;
-}
-
-/* SECCIONES DE INFORMACIÓN */
 .info-section {
   margin-bottom: 30px;
   padding-bottom: 20px;
   border-bottom: 2px solid #f0f0f0;
-}
-
-.info-section:last-child {
-  border-bottom: none;
 }
 
 .section-title {
@@ -733,32 +779,20 @@ export default {
   box-shadow: 0 0 0 3px rgba(0, 186, 179, 0.1);
 }
 
-.info-item textarea {
-  resize: vertical;
-  min-height: 60px;
-}
-
-.info-item select {
-  cursor: pointer;
-}
-
 /* RESPONSIVE */
 @media (max-width: 1024px) {
   .detalles-container {
     grid-template-columns: 1fr;
     height: auto;
   }
-
   .columna-izquierda {
     flex-direction: row;
     flex-wrap: wrap;
   }
-
   .foto-container {
     flex: 1;
     min-width: 200px;
   }
-
   .action-btn {
     flex: 1;
     min-width: 150px;
@@ -769,19 +803,15 @@ export default {
   .page-container {
     padding: 20px;
   }
-
   .info-grid {
     grid-template-columns: 1fr;
   }
-
   .columna-izquierda {
     flex-direction: column;
   }
-
   .dashboard-title {
     font-size: 22px;
   }
-
   .section-title {
     font-size: 16px;
   }

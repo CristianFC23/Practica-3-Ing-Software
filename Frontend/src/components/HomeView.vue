@@ -132,65 +132,132 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import axios from 'axios';
 
-const sedeActual = ref('Prado');
+const API_URL = "http://127.0.0.1:8000/api/equipos/";
+
+const sedeActual = ref("Prado");
 const router = useRouter();
 const hoveredSegment = ref(null);
 
-// Datos de ejemplo (reemplaza con datos reales de tu backend)
+// Datos que alimentan el gráfico
 const equiposData = ref({
-  activos: 45,
-  inactivos: 12,
-  baja: 8
+  activos: 0,
+  inactivos: 0,
+  baja: 0
 });
 
+// =====================================================
+// 🔥 FUNCIÓN PARA CARGAR DATOS DESDE EL BACKEND POR SEDE
+// =====================================================
+const cargarEquiposPorSede = async () => {
+  try {
+    const res = await axios.get(API_URL);
+    const equipos = res.data;
+
+    // Filtrar por sede actual
+    const filtrados = equipos.filter(
+      (e) => e.sede && e.sede.toLowerCase() === sedeActual.value.toLowerCase()
+    );
+
+    // Contar activos, inactivos y baja
+    equiposData.value = {
+      activos: filtrados.filter((e) => e.estado === "activo").length,
+      inactivos: filtrados.filter((e) => e.estado === "inactivo").length,
+      baja: filtrados.filter((e) => e.estado === "baja").length,
+    };
+
+    console.log("Equipos por sede:", sedeActual.value, equiposData.value);
+
+  } catch (error) {
+    console.error("Error cargando equipos:", error);
+  }
+};
+
+// Llamar backend al cargar la vista
+onMounted(() => {
+  cargarEquiposPorSede();
+});
+
+// Llamar backend cuando cambia la sede
+watch(sedeActual, () => {
+  cargarEquiposPorSede();
+});
+
+// =====================================================
+// TOTAL DE EQUIPOS
+// =====================================================
 const totalEquipos = computed(() => {
-  return equiposData.value.activos + equiposData.value.inactivos + equiposData.value.baja;
+  return equiposData.value.activos +
+         equiposData.value.inactivos +
+         equiposData.value.baja;
 });
 
-// Función para crear los segmentos del gráfico de torta
+// =====================================================
+// GRÁFICO DE TORTA
+// =====================================================
 const pieSegments = computed(() => {
   const data = [
     { value: equiposData.value.activos, color: '#81d742' },
     { value: equiposData.value.inactivos, color: '#f0b889' },
     { value: equiposData.value.baja, color: '#e89b9b' }
   ];
-  
+
   const total = totalEquipos.value;
-  let currentAngle = -90; // Empezar desde arriba
-  
+
+  // Caso especial: si solo un valor es mayor que 0 => círculo completo
+  const nonZero = data.filter(d => d.value > 0);
+  if (nonZero.length === 1) {
+    const item = nonZero[0];
+
+    const path = [
+      `M 100 100`,
+      `M 100 20`, // mover al borde superior
+      `A 80 80 0 1 1 99.9 20`, // círculo completo
+      `Z`
+    ].join(' ');
+
+    return [
+      {
+        path,
+        color: item.color
+      }
+    ];
+  }
+
+  // Caso general
+  let currentAngle = -90;
+
   return data.map(item => {
     const percentage = item.value / total;
     const angle = percentage * 360;
-    
+
     const startAngle = currentAngle;
     const endAngle = currentAngle + angle;
-    
+
     currentAngle = endAngle;
-    
-    // Convertir ángulos a radianes
+
+    // Radianes
     const startRad = (startAngle * Math.PI) / 180;
     const endRad = (endAngle * Math.PI) / 180;
-    
-    // Calcular coordenadas del arco
+
+    // Coordenadas del arco
     const x1 = 100 + 80 * Math.cos(startRad);
     const y1 = 100 + 80 * Math.sin(startRad);
     const x2 = 100 + 80 * Math.cos(endRad);
     const y2 = 100 + 80 * Math.sin(endRad);
-    
-    // Determinar si el arco debe ser mayor a 180 grados
+
     const largeArc = angle > 180 ? 1 : 0;
-    
-    // Crear el path del segmento
+
     const path = [
-      `M 100 100`,           // Mover al centro
-      `L ${x1} ${y1}`,       // Línea al inicio del arco
-      `A 80 80 0 ${largeArc} 1 ${x2} ${y2}`, // Arco
-      `Z`                    // Cerrar path
+      `M 100 100`,
+      `L ${x1} ${y1}`,
+      `A 80 80 0 ${largeArc} 1 ${x2} ${y2}`,
+      `Z`
     ].join(' ');
-    
+
     return {
       path,
       color: item.color
@@ -198,16 +265,16 @@ const pieSegments = computed(() => {
   });
 });
 
+
+// Navegar al listado con la categoría y sede seleccionadas
 const irAEquipos = (categoria) => {
   router.push({
-    name: 'equipos',
-    query: {
-      sede: sedeActual.value,
-      categoria: categoria
-    }
+    name: "equipos",
+    query: { sede: sedeActual.value, categoria }
   });
 };
 </script>
+
 
 <style>
 /* Estilos globales (sin scoped) */
@@ -216,9 +283,7 @@ html, body {
   padding: 0;
   overflow: hidden;
 }
-</style>
 
-<style scoped>
 .app-container {
   display: flex;
   flex-direction: column;

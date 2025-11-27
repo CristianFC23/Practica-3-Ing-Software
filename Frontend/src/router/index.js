@@ -6,30 +6,38 @@ import HomeView from '@/components/HomeView.vue'
 // import NuevoResultado from '@/components/NuevoResultado.vue'
 // import NuevoPaciente from '@/components/NuevoPaciente.vue'
 // import NuevoLaboratorista from '@/components/NuevoLaboratorista.vue'
-import EquiposView from'@/components/EquiposView.vue'
+import EquiposView from '@/components/EquiposView.vue'
 import DetallesView from '@/components/DetallesView.vue'
 import CrearEquipo from '@/components/CrearEquipo.vue'
+import EditarEquipos from '@/components/EditarEquipos.vue' 
+
 const routes = [
   {
     path: '/',
     name: 'home',
     component: HomeView
   },
-  { 
+  {
     path: '/equipos',
     name: 'equipos',
     component: EquiposView
   },
-  { 
+  {
     path: '/detalles',
     name: 'detalles',
     component: DetallesView
   },
-  { 
+  {
     path: '/crear-equipo',
     name: 'crear-equipo',
     component: CrearEquipo
+  },
+  {
+    path: "/editar-equipo/:id",
+    name: "editarEquipo",
+    component: EditarEquipos
   }
+
 ]
 
 const router = createRouter({

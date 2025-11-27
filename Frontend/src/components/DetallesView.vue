@@ -12,7 +12,7 @@
           </div>
         </div>
 
-        <button class="action-btn edit-btn">
+        <button class="action-btn edit-btn" @click="editarEquipo">
           ✏️ Editar Info
         </button>
 
@@ -32,10 +32,10 @@
           <p class="codigo-principal">{{ equipoDetalle.codigoInventario }}</p>
           <span :class="['badge-estado', equipoDetalle.estado === 'activo' ? 'badge-activo' : 'badge-inactivo']">
             {{ equipoDetalle.estado === 'activo' ? '● Activo' : '● Inactivo' }}</span>
-  
-          
+
+
           <div class="info-scrolleable">
-            
+
             <!-- 1. INFORMACIÓN GENERAL -->
             <div class="info-section">
               <h3 class="section-title">📋 Información General</h3>
@@ -295,8 +295,12 @@ export default {
   setup() {
     const router = useRouter();
     const route = useRoute();
-    
+
     const equipoId = ref(route.params.id || null);
+
+    // const editarEquipo = () => {
+    //   router.push({ name: "editarEquipo", params: { id: equipo.value.id } });
+    // };
 
     // Datos del equipo - En producción, estos vendrían de una API
     const equipoDetalle = ref({
@@ -366,7 +370,7 @@ export default {
 
     const volverAtras = () => {
       // Volver a la vista de equipos con los parámetros de sede y categoría
-      router.push({ 
+      router.push({
         name: 'equipos',
         query: {
           sede: route.query.sede,
@@ -385,6 +389,7 @@ export default {
       volverAtras,
       volverDashboard
     };
+
   }
 };
 </script>

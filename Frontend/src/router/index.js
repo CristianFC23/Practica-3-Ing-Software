@@ -1,11 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/components/HomeView.vue'
-// import PacientesView from '@/components/PacientesView.vue'
-// import LaboratoristasView from '@/components/LaboratoristasView.vue'
-// import ResultadosView from '@/components/ResultadosView.vue'
-// import NuevoResultado from '@/components/NuevoResultado.vue'
-// import NuevoPaciente from '@/components/NuevoPaciente.vue'
-// import NuevoLaboratorista from '@/components/NuevoLaboratorista.vue'
 import EquiposView from '@/components/EquiposView.vue'
 import DetallesView from '@/components/DetallesView.vue'
 import CrearEquipo from '@/components/CrearEquipo.vue'
@@ -23,7 +17,7 @@ const routes = [
     component: EquiposView
   },
   {
-    path: '/detalles',
+    path: '/detalles/:id',
     name: 'detalles',
     component: DetallesView
   },
@@ -33,11 +27,10 @@ const routes = [
     component: CrearEquipo
   },
   {
-    path: "/editar-equipo/:id",
-    name: "editarEquipo",
+    path: '/editar-equipo/:id',
+    name: 'editarEquipo',
     component: EditarEquipos
   }
-
 ]
 
 const router = createRouter({

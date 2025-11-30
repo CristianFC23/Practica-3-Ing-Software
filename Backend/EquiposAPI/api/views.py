@@ -22,7 +22,7 @@ class EquipoInfoView(View):
             equipos = list(EquipoInfo.objects.all())
             data = [self.model_to_dict(e) for e in equipos]
             return JsonResponse(data, safe=False, status=200)
-
+    # En views.py
     # ---------- POST ----------
     def post(self, request):
         try:

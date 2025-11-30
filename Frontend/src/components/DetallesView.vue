@@ -8,7 +8,7 @@
         <div class="foto-container">
           <div class="foto-placeholder">
             <p>📷</p>
-            <span>{{ equipoDetalle.nombreEquipo }}</span>
+            <span>{{ equipoDetalle.nombre_equipo }}</span>
           </div>
         </div>
 
@@ -28,20 +28,33 @@
       <!-- Columna Derecha: Dashboard Scrolleable -->
       <div class="columna-derecha">
         <div class="dashboard-card">
-          <h2 class="dashboard-title">{{ equipoDetalle.nombreEquipo }}</h2>
-          <p class="codigo-principal">{{ equipoDetalle.codigoInventario }}</p>
-          <span :class="['badge-estado', equipoDetalle.estado === 'activo' ? 'badge-activo' : 'badge-inactivo']">
-            {{ equipoDetalle.estado === 'activo' ? '● Activo' : '● Inactivo' }}</span>
+          
+          <!-- Estado de Carga -->
+          <div v-if="loading" class="loading-state">
+            <p>Cargando información del equipo...</p>
+          </div>
 
+          <!-- Estado de Error -->
+          <div v-else-if="error" class="error-state">
+            <p>{{ error }}</p>
+            <button @click="cargarEquipo" class="retry-btn">Reintentar</button>
+          </div>
 
-          <div class="info-scrolleable">
+          <!-- Contenido del Equipo -->
+          <template v-else>
+            <h2 class="dashboard-title">{{ equipoDetalle.nombre_equipo || 'Sin nombre' }}</h2>
+            <p class="codigo-principal">{{ equipoDetalle.codigo_inventario || 'Sin código' }}</p>
+            <span :class="['badge-estado', equipoDetalle.estado === 'activo' ? 'badge-activo' : 'badge-inactivo']">
+              {{ equipoDetalle.estado === 'activo' ? '● Activo' : '● Inactivo' }}</span>
+
+            <div class="info-scrolleable">
 
             <!-- 1. INFORMACIÓN GENERAL -->
             <div class="info-section">
               <h3 class="section-title">📋 Información General</h3>
               <div class="info-grid">
                 <div class="info-item">
-                  <label>servicio:</label>
+                  <label>Servicio:</label>
                   <p>{{ equipoDetalle.servicio }}</p>
                 </div>
                 <div class="info-item">
@@ -50,23 +63,23 @@
                 </div>
                 <div class="info-item">
                   <label>Código de inventario:</label>
-                  <p class="destacado">{{ equipoDetalle.codigoInventario }}</p>
+                  <p class="destacado">{{ equipoDetalle.codigo_inventario }}</p>
                 </div>
                 <div class="info-item">
                   <label>Código IPS:</label>
-                  <p>{{ equipoDetalle.codigoIPS }}</p>
+                  <p>{{ equipoDetalle.codigo_ips }}</p>
                 </div>
                 <div class="info-item">
                   <label>Código ECRI:</label>
-                  <p>{{ equipoDetalle.codigoECRI }}</p>
+                  <p>{{ equipoDetalle.codigo_ecri }}</p>
                 </div>
                 <div class="info-item">
-                  <label>Responsable:</label>
-                  <p>{{ equipoDetalle.responsable }}</p>
+                  <label>Responsable del proceso:</label>
+                  <p>{{ equipoDetalle.responsable_proceso }}</p>
                 </div>
                 <div class="info-item full-width">
                   <label>Ubicación física:</label>
-                  <p>{{ equipoDetalle.ubicacionFisica }}</p>
+                  <p>{{ equipoDetalle.ubicacion_fisica }}</p>
                 </div>
                 <div class="info-item">
                   <label>Marca:</label>
@@ -82,19 +95,19 @@
                 </div>
                 <div class="info-item full-width">
                   <label>Clasificación eje misional:</label>
-                  <p>{{ equipoDetalle.clasificacionMisional }}</p>
+                  <p>{{ equipoDetalle.clasificacion_eje_misional }}</p>
                 </div>
                 <div class="info-item">
                   <label>Clasificación IPS:</label>
-                  <p>{{ equipoDetalle.clasificacionIPS }}</p>
+                  <p>{{ equipoDetalle.clasificacion_ips }}</p>
                 </div>
                 <div class="info-item">
                   <label>Clasificación por riesgo:</label>
-                  <p>{{ equipoDetalle.clasificacionRiesgo }}</p>
+                  <p>{{ equipoDetalle.clasificacion_riesgo }}</p>
                 </div>
                 <div class="info-item full-width">
                   <label>Registro Invima:</label>
-                  <p>{{ equipoDetalle.registroInvima }}</p>
+                  <p>{{ equipoDetalle.registro_invima }}</p>
                 </div>
               </div>
             </div>
@@ -104,12 +117,12 @@
               <h3 class="section-title">📅 Registro Histórico</h3>
               <div class="info-grid">
                 <div class="info-item">
-                  <label>Vida útil:</label>
-                  <p>{{ equipoDetalle.vidaUtil }}</p>
+                  <label>Tiempo de vida útil:</label>
+                  <p>{{ equipoDetalle.tiempo_vida_util }}</p>
                 </div>
                 <div class="info-item">
                   <label>Fecha de adquisición:</label>
-                  <p>{{ equipoDetalle.fechaAdquisicion }}</p>
+                  <p>{{ equipoDetalle.fecha_adquisicion }}</p>
                 </div>
                 <div class="info-item">
                   <label>Propietario:</label>
@@ -117,37 +130,41 @@
                 </div>
                 <div class="info-item">
                   <label>Fecha de fabricación:</label>
-                  <p>{{ equipoDetalle.fechaFabricacion }}</p>
+                  <p>{{ equipoDetalle.fecha_fabricacion }}</p>
                 </div>
                 <div class="info-item">
                   <label>NIT:</label>
                   <p>{{ equipoDetalle.nit }}</p>
                 </div>
                 <div class="info-item full-width">
-                  <label>Proveedor:</label>
-                  <p>{{ equipoDetalle.proveedorEquipo }}</p>
+                  <label>Proveedor del equipo:</label>
+                  <p>{{ equipoDetalle.proveedor_equipo }}</p>
                 </div>
                 <div class="info-item">
                   <label>¿En garantía?:</label>
-                  <p :class="equipoDetalle.enGarantia === 'Sí' ? 'estado-activo' : 'estado-inactivo'">
-                    {{ equipoDetalle.enGarantia }}
+                  <p :class="equipoDetalle.garantia === 'Sí' ? 'estado-activo' : 'estado-inactivo'">
+                    {{ equipoDetalle.garantia }}
                   </p>
                 </div>
                 <div class="info-item">
                   <label>Fin de garantía:</label>
-                  <p>{{ equipoDetalle.fechaFinGarantia }}</p>
+                  <p>{{ equipoDetalle.fecha_fin_garantia }}</p>
                 </div>
                 <div class="info-item">
                   <label>Forma de adquisición:</label>
-                  <p>{{ equipoDetalle.formaAdquisicion }}</p>
+                  <p>{{ equipoDetalle.forma_adquisicion }}</p>
                 </div>
                 <div class="info-item">
                   <label>Tipo de documento:</label>
-                  <p>{{ equipoDetalle.tipoDocumento }}</p>
+                  <p>{{ equipoDetalle.tipo_documento }}</p>
                 </div>
                 <div class="info-item">
                   <label>Número de documento:</label>
-                  <p>{{ equipoDetalle.numeroDocumento }}</p>
+                  <p>{{ equipoDetalle.numero_documento }}</p>
+                </div>
+                <div class="info-item">
+                  <label>Valor de compra:</label>
+                  <p>{{ equipoDetalle.valor_compra }}</p>
                 </div>
               </div>
             </div>
@@ -158,35 +175,35 @@
               <div class="info-grid">
                 <div class="info-item">
                   <label>Hoja de vida:</label>
-                  <p>{{ equipoDetalle.hojaVida }}</p>
+                  <p>{{ equipoDetalle.hoja_vida }}</p>
                 </div>
                 <div class="info-item">
                   <label>Registro de importación:</label>
-                  <p>{{ equipoDetalle.registroImportacion }}</p>
+                  <p>{{ equipoDetalle.registro_importacion }}</p>
                 </div>
                 <div class="info-item">
                   <label>Manual de operación:</label>
-                  <p>{{ equipoDetalle.manualOperacion }}</p>
+                  <p>{{ equipoDetalle.manual_operacion }}</p>
                 </div>
                 <div class="info-item">
                   <label>Manual de servicio:</label>
-                  <p>{{ equipoDetalle.manualServicio }}</p>
+                  <p>{{ equipoDetalle.manual_servicio }}</p>
                 </div>
                 <div class="info-item">
-                  <label>Guía rápida:</label>
-                  <p>{{ equipoDetalle.guiaRapida }}</p>
+                  <label>Guía rápida de uso:</label>
+                  <p>{{ equipoDetalle.guia_rapida_uso }}</p>
                 </div>
                 <div class="info-item">
-                  <label>Instructivo de manejo:</label>
-                  <p>{{ equipoDetalle.instructivoManejo }}</p>
+                  <label>Instructivo de manejo rápido:</label>
+                  <p>{{ equipoDetalle.instructivo_manejo_rapido }}</p>
                 </div>
                 <div class="info-item">
                   <label>Protocolo Mto. Preventivo:</label>
-                  <p>{{ equipoDetalle.protocoloMtoPrev }}</p>
+                  <p>{{ equipoDetalle.protocolo_mantenimiento_preventivo }}</p>
                 </div>
                 <div class="info-item">
-                  <label>Frecuencia metrológica:</label>
-                  <p>{{ equipoDetalle.frecuenciaMetrologica }}</p>
+                  <label>Frecuencia metrológica fabricante:</label>
+                  <p>{{ equipoDetalle.frecuencia_metrologica_fabricante }}</p>
                 </div>
               </div>
             </div>
@@ -197,23 +214,23 @@
               <div class="info-grid">
                 <div class="info-item">
                   <label>Requiere mantenimiento:</label>
-                  <p :class="equipoDetalle.requiereMantenimiento === 'Sí' ? 'estado-activo' : 'estado-inactivo'">
-                    {{ equipoDetalle.requiereMantenimiento }}
+                  <p :class="equipoDetalle.mantenimiento === 'Sí' ? 'estado-activo' : 'estado-inactivo'">
+                    {{ equipoDetalle.mantenimiento }}
                   </p>
                 </div>
                 <div class="info-item">
                   <label>Frecuencia mantenimiento:</label>
-                  <p>{{ equipoDetalle.frecuenciaMantenimiento }}</p>
+                  <p>{{ equipoDetalle.frecuencia_mantenimiento }}</p>
                 </div>
                 <div class="info-item">
                   <label>Requiere calibración:</label>
-                  <p :class="equipoDetalle.requiereCalibracion === 'Sí' ? 'estado-activo' : 'estado-inactivo'">
-                    {{ equipoDetalle.requiereCalibracion }}
+                  <p :class="equipoDetalle.calibracion === 'Sí' ? 'estado-activo' : 'estado-inactivo'">
+                    {{ equipoDetalle.calibracion }}
                   </p>
                 </div>
                 <div class="info-item">
                   <label>Frecuencia calibración:</label>
-                  <p>{{ equipoDetalle.frecuenciaCalibracion }}</p>
+                  <p>{{ equipoDetalle.frecuencia_calibracion }}</p>
                 </div>
               </div>
             </div>
@@ -228,7 +245,7 @@
                 </div>
                 <div class="info-item full-width">
                   <label>Rango del equipo:</label>
-                  <p>{{ equipoDetalle.rangoEquipo }}</p>
+                  <p>{{ equipoDetalle.rango_equipo }}</p>
                 </div>
                 <div class="info-item">
                   <label>Resolución:</label>
@@ -236,11 +253,11 @@
                 </div>
                 <div class="info-item">
                   <label>Rango de trabajo:</label>
-                  <p>{{ equipoDetalle.rangoTrabajo }}</p>
+                  <p>{{ equipoDetalle.rango_trabajo }}</p>
                 </div>
                 <div class="info-item full-width">
                   <label>Error máximo permitido:</label>
-                  <p>{{ equipoDetalle.errorMaximoPermitido }}</p>
+                  <p>{{ equipoDetalle.error_max_permitido }}</p>
                 </div>
               </div>
             </div>
@@ -259,11 +276,11 @@
                 </div>
                 <div class="info-item">
                   <label>Humedad relativa:</label>
-                  <p>{{ equipoDetalle.humedadRelativa }}</p>
+                  <p>{{ equipoDetalle.humedad_relativa }}</p>
                 </div>
                 <div class="info-item">
-                  <label>Temperatura:</label>
-                  <p>{{ equipoDetalle.temperatura }}</p>
+                  <label>Temperatura máxima:</label>
+                  <p>{{ equipoDetalle.temperatura_maxima }}</p>
                 </div>
                 <div class="info-item">
                   <label>Dimensiones:</label>
@@ -280,7 +297,38 @@
               </div>
             </div>
 
-          </div>
+            <!-- 7. INFORMACIÓN DE BAJA (si aplica) -->
+            <div class="info-section" v-if="equipoDetalle.estado === 'inactivo'">
+              <h3 class="section-title">⚠️ Información de Baja</h3>
+              <div class="info-grid">
+                <div class="info-item">
+                  <label>Fecha de baja:</label>
+                  <p>{{ equipoDetalle.fecha_baja }}</p>
+                </div>
+                <div class="info-item full-width">
+                  <label>Motivo de baja:</label>
+                  <p>{{ equipoDetalle.motivo_baja }}</p>
+                </div>
+                <div class="info-item full-width">
+                  <label>Justificación de baja:</label>
+                  <p>{{ equipoDetalle.justificacion_baja }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 8. INFORMACIÓN DE TRASLADO (si aplica) -->
+            <div class="info-section" v-if="equipoDetalle.justificacion_traslado">
+              <h3 class="section-title">🚚 Información de Traslado</h3>
+              <div class="info-grid">
+                <div class="info-item full-width">
+                  <label>Justificación de traslado:</label>
+                  <p>{{ equipoDetalle.justificacion_traslado }}</p>
+                </div>
+              </div>
+            </div>
+
+            </div>
+          </template>
         </div>
       </div>
     </div>
@@ -289,87 +337,50 @@
 
 <script>
 import { useRouter, useRoute } from 'vue-router';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 
 export default {
   setup() {
+    const API_URL = "http://127.0.0.1:8000/api/equipos/";
+    
     const router = useRouter();
     const route = useRoute();
 
     const equipoId = ref(route.params.id || null);
+    const equipoDetalle = ref({});
+    const loading = ref(false);
+    const error = ref(null);
 
-    // const editarEquipo = () => {
-    //   router.push({ name: "editarEquipo", params: { id: equipo.value.id } });
-    // };
+    // =============================
+    // 🔥 CARGAR EQUIPO DESDE BACKEND
+    // =============================
+    const cargarEquipo = async () => {
+      if (!equipoId.value) {
+        error.value = "No se proporcionó un ID de equipo";
+        return;
+      }
 
-    // Datos del equipo - En producción, estos vendrían de una API
-    const equipoDetalle = ref({
-      // Información General
-      servicio: 'Diagnóstico por Imágenes',
-      nombreEquipo: 'Rayos X Digital',
-      sede: 'SIU',
-      estado: 'activo',
-      codigoInventario: 'RX-001-LIME-2023',
-      codigoIPS: 'IPS-RX-2023-045',
-      codigoECRI: '16-725',
-      responsable: 'Dr. Carlos Martínez Pérez',
-      ubicacionFisica: 'Sala de Radiología 1 - Piso 2',
-      marca: 'Siemens',
-      modelo: 'Luminos Agile Max',
-      serie: 'SN-2023-RX-8947',
-      clasificacionMisional: 'Docencia, Investigación, Extensión',
-      clasificacionIPS: 'IND',
-      clasificacionRiesgo: 'Clase IIB - Riesgo Alto',
-      registroInvima: '2023DM-0012345',
+      loading.value = true;
+      error.value = null;
 
-      // Registro Histórico
-      vidaUtil: '10 años',
-      fechaAdquisicion: '15/03/2023',
-      propietario: 'Universidad de Antioquia',
-      fechaFabricacion: '01/2023',
-      nit: '890980040-8',
-      proveedorEquipo: 'Siemens Healthineers Colombia S.A.S.',
-      enGarantia: 'Sí',
-      fechaFinGarantia: '15/03/2026',
-      formaAdquisicion: 'Compra directa',
-      tipoDocumento: 'Factura',
-      numeroDocumento: 'FV-2023-001234',
+      try {
+        const response = await axios.get(`${API_URL}${equipoId.value}/`);
+        equipoDetalle.value = response.data;
+        console.log('Equipo cargado:', response.data);
+      } catch (e) {
+        console.error('Error al cargar equipo:', e);
+        error.value = "No se pudo cargar la información del equipo";
+      } finally {
+        loading.value = false;
+      }
+    };
 
-      // Inventario de Documentos
-      hojaVida: 'Sí - Disponible',
-      registroImportacion: 'Sí - RI-2023-0456',
-      manualOperacion: 'Sí - Español',
-      manualServicio: 'Sí - Español',
-      guiaRapida: 'Sí - Disponible',
-      instructivoManejo: 'Sí - Disponible',
-      protocoloMtoPrev: 'Sí - Cada 6 meses',
-      frecuenciaMetrologica: 'Anual',
-
-      // Información Metrológica Administrativa
-      requiereMantenimiento: 'Sí',
-      frecuenciaMantenimiento: '2 veces al año',
-      requiereCalibracion: 'Sí',
-      frecuenciaCalibracion: '1 vez al año',
-
-      // Información Metrológica Técnica
-      magnitud: 'Radiación ionizante (kV, mAs)',
-      rangoEquipo: '40-150 kV, 1-500 mAs',
-      resolucion: '0.1 kV, 0.1 mAs',
-      rangoTrabajo: '50-125 kV, 5-320 mAs',
-      errorMaximoPermitido: '±5% en kV, ±10% en mAs',
-
-      // Condiciones de Funcionamiento
-      voltaje: '220V AC ± 10%',
-      corriente: '50/60 Hz, 32A máx.',
-      humedadRelativa: '30% - 75% sin condensación',
-      temperatura: '15°C - 30°C',
-      dimensiones: '210 cm (alto) x 180 cm (ancho) x 150 cm (profundo)',
-      peso: '650 kg',
-      otros: 'Requiere sistema de tierra dedicado, protección diferencial 30mA, conexión de red LAN para PACS'
-    });
+    const editarEquipo = () => {
+      router.push({ name: "editarEquipo", params: { id: equipoId.value } });
+    };
 
     const volverAtras = () => {
-      // Volver a la vista de equipos con los parámetros de sede y categoría
       router.push({
         name: 'equipos',
         query: {
@@ -383,13 +394,21 @@ export default {
       router.push({ name: 'home' });
     };
 
+    // Cargar equipo al montar el componente
+    onMounted(() => {
+      cargarEquipo();
+    });
+
     return {
       equipoId,
       equipoDetalle,
+      loading,
+      error,
+      editarEquipo,
       volverAtras,
-      volverDashboard
+      volverDashboard,
+      cargarEquipo
     };
-
   }
 };
 </script>
@@ -680,6 +699,8 @@ export default {
   letter-spacing: 0.5px;
   margin-bottom: 15px;
   margin-top: -5px;
+  display: inline-block;
+  width: fit-content;
 }
 
 .badge-inactivo {

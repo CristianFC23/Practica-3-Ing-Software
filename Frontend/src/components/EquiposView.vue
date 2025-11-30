@@ -70,31 +70,26 @@
                   <p class="equipo-codigo">{{ equipo.codigo_inventario }}</p>
                 </div>
                 <div class="header-actions">
-                  <!-- <span
-                    :class="['badge-estado', equipo.estado === 'activo' ? 'badge-activo' : 'badge-inactivo']"
-                  >
-                    {{ equipo.estado === 'activo' ? '● Activo' : '● Inactivo' }}
-                  </span> -->
                   <span
-                  :class="[
-                    'badge-estado',
-                    equipo.estado === 'activo'
-                      ? 'badge-activo'
-                      : equipo.estado === 'inactivo'
-                      ? 'badge-inactivo'
-                      : 'badge-baja'
-                  ]"
-                >
-                  {{ 
-                    equipo.estado === 'activo'
-                      ? '● Activo'
-                      : equipo.estado === 'inactivo'
-                      ? '● Inactivo'
-                      : '● De Baja'
-                  }}
-                </span>
+                    :class="[
+                      'badge-estado',
+                      equipo.estado === 'activo'
+                        ? 'badge-activo'
+                        : equipo.estado === 'inactivo'
+                        ? 'badge-inactivo'
+                        : 'badge-baja'
+                    ]"
+                  >
+                    {{ 
+                      equipo.estado === 'activo'
+                        ? '● Activo'
+                        : equipo.estado === 'inactivo'
+                        ? '● Inactivo'
+                        : '● De Baja'
+                    }}
+                  </span>
 
-                  <button class="edit-btn" @click.stop="editarEquipo(equipo)">
+                  <button class="edit-btn" @click="verDetalles(equipo.id)">
                     MÁS INFORMACIÓN
                   </button>
                 </div>
@@ -200,7 +195,9 @@ export default {
       try {
         const res = await axios.get(API_URL);
         equipos.value = res.data;
+        console.log('Equipos cargados:', res.data); // Para debug
       } catch (e) {
+        console.error('Error al cargar equipos:', e);
         error.value = "No se pudieron cargar los equipos desde el servidor.";
       } finally {
         loading.value = false;
@@ -211,80 +208,60 @@ export default {
     // 🔥 FILTRADO EN VIVO
     // =============================
     const equiposFiltrados = computed(() => {
-  let resultado = equipos.value;
+      let resultado = equipos.value;
 
-  // 🔥 FILTRAR POR SEDE
-  if (sedeActual.value && sedeActual.value !== "todas") {
-    resultado = resultado.filter((e) =>
-      (e.sede || "").toLowerCase() === sedeActual.value.toLowerCase()
-    );
-  }
+      // 🔥 FILTRAR POR SEDE
+      if (sedeActual.value && sedeActual.value !== "todas") {
+        resultado = resultado.filter((e) =>
+          (e.sede || "").toLowerCase() === sedeActual.value.toLowerCase()
+        );
+      }
 
-  // 🔥 FILTRAR POR CATEGORÍA
-  if (categoriaActual.value !== "todos") {
-    resultado = resultado.filter(
-      (e) =>
-        (e.estado || "").toLowerCase() ===
-        categoriaActual.value.toLowerCase()
-    );
-  }
+      // 🔥 FILTRAR POR CATEGORÍA
+      if (categoriaActual.value !== "todos") {
+        resultado = resultado.filter(
+          (e) =>
+            (e.estado || "").toLowerCase() ===
+            categoriaActual.value.toLowerCase()
+        );
+      }
 
-  // 🔥 BUSCADOR
-  if (searchQuery.value.trim() !== "") {
-    const q = searchQuery.value.toLowerCase();
+      // 🔥 BUSCADOR
+      if (searchQuery.value.trim() !== "") {
+        const q = searchQuery.value.toLowerCase();
 
-    resultado = resultado.filter((e) =>
-      Object.values(e).some(
-        (v) => typeof v === "string" && v.toLowerCase().includes(q)
-      )
-    );
-  }
+        resultado = resultado.filter((e) =>
+          Object.values(e).some(
+            (v) => typeof v === "string" && v.toLowerCase().includes(q)
+          )
+        );
+      }
 
-  return resultado;
-});
-
-    // const equiposFiltrados = computed(() => {
-    //   let resultado = equipos.value;
-
-    //   if (categoriaActual.value !== "todos") {
-    //     resultado = resultado.filter(
-    //       (e) =>
-    //         (e.estado || "").toLowerCase() ===
-    //         categoriaActual.value.toLowerCase()
-    //     );
-    //   }
-
-    //   if (searchQuery.value.trim() !== "") {
-    //     const q = searchQuery.value.toLowerCase();
-
-    //     resultado = resultado.filter((e) =>
-    //       Object.values(e).some(
-    //         (v) => typeof v === "string" && v.toLowerCase().includes(q)
-    //       )
-    //     );
-    //   }
-
-    //   return resultado;
-    // });
+      return resultado;
+    });
 
     const refrescarLista = () => cargarEquipos();
 
     // =============================
-    // 🔥 NAVEGACIÓN
+    // 🔥 NAVEGACIÓN A DETALLES
     // =============================
-    const editarEquipo = (equipo) => {
-      console.log("Equipo recibido:", equipo);   // <-- ESTE LOG ES EL QUE NECESITAMOS
+    const verDetalles = (equipoId) => {
+      console.log('Navegando a detalles del equipo ID:', equipoId); // Para debug
+      
+      if (!equipoId) {
+        console.error('ERROR: No se proporcionó un ID de equipo');
+        return;
+      }
+
       router.push({
         name: "detalles",
-        params: { id: equipo.id },
+        params: { id: equipoId },
         query: {
           sede: sedeActual.value,
           categoria: categoriaActual.value,
         },
       });
     };
-
-    
 
     const agregarEquipo = () => {
       router.push({
@@ -311,155 +288,13 @@ export default {
       equipos,
       equiposFiltrados,
       refrescarLista,
-      editarEquipo,
+      verDetalles,
       agregarEquipo,
       volverDashboard,
     };
   },
 };
 </script>
-
-
-<!-- <script>
-import { useRoute, useRouter } from 'vue-router';
-import { ref, computed } from 'vue';
-
-export default {
-  setup() {
-    const route = useRoute();
-    const router = useRouter();
-    
-    const sedeActual = ref(route.query.sede || 'Sede desconocida');
-    const categoriaActual = ref(route.query.categoria || 'todos');
-    const searchQuery = ref('');
-    const loading = ref(false);
-    const error = ref(null);
-
-    const equipos = ref([
-      { 
-        id: 1, 
-        nombre: 'Rayos X Digital', 
-        codigo: 'RX-001-LIME-2023', 
-        marca: 'Siemens', 
-        modelo: 'Luminos Agile Max',
-        serie: 'SN-2023-RX-8947',
-        ubicacion: 'Sala de Radiología 1 - Piso 2', 
-        estado: 'activo',
-        proceso: 'Diagnóstico por Imágenes',
-        codigoIPS: 'IPS-RX-2023-045',
-        codigoECRI: '16-725',
-        responsable: 'Dr. Carlos Martínez Pérez',
-        clasificacionMisional: 'Docencia, Investigación, Extensión',
-        clasificacionIPS: 'IND',
-        clasificacionRiesgo: 'Clase IIB - Riesgo Alto',
-        registroInvima: '2023DM-0012345'
-      },
-      { 
-        id: 2, 
-        nombre: 'Ecógrafo', 
-        codigo: 'ECO-002-LIME-2023', 
-        marca: 'GE Healthcare', 
-        modelo: 'LOGIQ E10',
-        serie: 'SN-2023-ECO-5621',
-        ubicacion: 'Sala de Ecografía - Piso 3', 
-        estado: 'activo',
-        proceso: 'Diagnóstico por Imágenes',
-        codigoIPS: 'IPS-ECO-2023-089',
-        codigoECRI: '10-235',
-        responsable: 'Dra. María Rodríguez López',
-        clasificacionMisional: 'Docencia, Investigación',
-        clasificacionIPS: 'IND',
-        clasificacionRiesgo: 'Clase IIA - Riesgo Moderado',
-        registroInvima: '2023DM-0012890'
-      },
-      { 
-        id: 3, 
-        nombre: 'Tomógrafo', 
-        codigo: 'TC-003-LIME-2022', 
-        marca: 'Philips', 
-        modelo: 'Ingenuity CT',
-        serie: 'SN-2022-TC-3347',
-        ubicacion: 'Sala de Tomografía - Piso 2', 
-        estado: 'inactivo',
-        proceso: 'Diagnóstico por Imágenes',
-        codigoIPS: 'IPS-TC-2022-034',
-        codigoECRI: '12-890',
-        responsable: 'Dr. Jorge Hernández Silva',
-        clasificacionMisional: 'Docencia, Extensión',
-        clasificacionIPS: 'IND',
-        clasificacionRiesgo: 'Clase IIB - Riesgo Alto',
-        registroInvima: '2022DM-0009876'
-      },
-    ]);
-
-    const equiposFiltrados = computed(() => {
-      let resultado = equipos.value;
-
-      if (categoriaActual.value !== 'todos') {
-        resultado = resultado.filter(e => e.estado === categoriaActual.value);
-      }
-
-      if (searchQuery.value) {
-        const q = searchQuery.value.toLowerCase();
-        resultado = resultado.filter(e =>
-          e.nombre.toLowerCase().includes(q) ||
-          e.codigo.toLowerCase().includes(q) ||
-          e.marca.toLowerCase().includes(q) ||
-          e.modelo.toLowerCase().includes(q) ||
-          e.serie.toLowerCase().includes(q) ||
-          e.responsable.toLowerCase().includes(q)
-        );
-      }
-
-      return resultado;
-    });
-
-    const refrescarLista = () => {
-      loading.value = true;
-      setTimeout(() => loading.value = false, 500);
-    };
-
-    const editarEquipo = (equipo) => {
-      router.push({
-        name: 'detalles',
-        params: { id: equipo.id },
-        query: {
-          sede: sedeActual.value,
-          categoria: categoriaActual.value
-        }
-      });
-    };
-
-    const agregarEquipo = () => {
-      router.push({
-        name: 'crear-equipo',
-        query: {
-          sede: sedeActual.value,
-          categoria: categoriaActual.value
-        }
-      });
-    };
-
-    const volverDashboard = () => {
-      router.push({ name: 'home' });
-    };
-
-    return {
-      sedeActual,
-      categoriaActual,
-      searchQuery,
-      loading,
-      error,
-      equipos,
-      equiposFiltrados,
-      refrescarLista,
-      editarEquipo,
-      agregarEquipo,
-      volverDashboard
-    };
-  }
-};
-</script> -->
 
 <style scoped>
 .page-container {
@@ -728,6 +563,12 @@ export default {
   border: 1px solid #e74c3c;
 }
 
+.badge-baja {
+  background: #fff4e5;
+  color: #e67e22;
+  border: 1px solid #f39c12;
+}
+
 /* SECCIÓN DE INFORMACIÓN */
 .info-section {
   margin-bottom: 20px;
@@ -850,12 +691,6 @@ export default {
 
 .btn-home:active {
   transform: scale(0.95);
-}
-
-.badge-baja {
-  background: #fff4e5;
-  color: #e67e22;
-  border: 1px solid #f39c12;
 }
 
 /* ============================================

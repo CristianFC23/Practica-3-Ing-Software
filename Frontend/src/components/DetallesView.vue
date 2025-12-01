@@ -16,9 +16,7 @@
           ✏️ Editar Info
         </button>
 
-        <button class="action-btn baja-btn">
-          ❌ Dar de baja
-        </button>
+        <!-- Botón "Dar de baja" eliminado -->
 
         <button class="action-btn volver-btn" @click="volverAtras">
           ⬅️ Volver al menú
@@ -44,8 +42,12 @@
           <template v-else>
             <h2 class="dashboard-title">{{ equipoDetalle.nombre_equipo || 'Sin nombre' }}</h2>
             <p class="codigo-principal">{{ equipoDetalle.codigo_inventario || 'Sin código' }}</p>
-            <span :class="['badge-estado', equipoDetalle.estado === 'activo' ? 'badge-activo' : 'badge-inactivo']">
-              {{ equipoDetalle.estado === 'activo' ? '● Activo' : '● Inactivo' }}</span>
+            <span :class="['badge-estado', 
+                          equipoDetalle.estado === 'activo' ? 'badge-activo' : 
+                          equipoDetalle.estado === 'baja' ? 'badge-baja' : 'badge-inactivo']">
+              {{ equipoDetalle.estado === 'activo' ? '● Activo' : 
+                 equipoDetalle.estado === 'baja' ? '● De baja' : '● Inactivo' }}
+            </span>
 
             <div class="info-scrolleable">
 
@@ -297,21 +299,21 @@
               </div>
             </div>
 
-            <!-- 7. INFORMACIÓN DE BAJA (si aplica) -->
-            <div class="info-section" v-if="equipoDetalle.estado === 'inactivo'">
+            <!-- 7. INFORMACIÓN DE BAJA (solo si el estado es "baja") -->
+            <div class="info-section" v-if="equipoDetalle.estado === 'baja'">
               <h3 class="section-title">⚠️ Información de Baja</h3>
               <div class="info-grid">
                 <div class="info-item">
                   <label>Fecha de baja:</label>
-                  <p>{{ equipoDetalle.fecha_baja }}</p>
+                  <p>{{ equipoDetalle.fecha_baja || 'No registrada' }}</p>
                 </div>
                 <div class="info-item full-width">
                   <label>Motivo de baja:</label>
-                  <p>{{ equipoDetalle.motivo_baja }}</p>
+                  <p>{{ equipoDetalle.motivo_baja || 'No especificado' }}</p>
                 </div>
                 <div class="info-item full-width">
                   <label>Justificación de baja:</label>
-                  <p>{{ equipoDetalle.justificacion_baja }}</p>
+                  <p>{{ equipoDetalle.justificacion_baja || 'No especificada' }}</p>
                 </div>
               </div>
             </div>
@@ -334,7 +336,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import { useRouter, useRoute } from 'vue-router';
 import { ref, onMounted } from 'vue';
@@ -368,6 +369,7 @@ export default {
         const response = await axios.get(`${API_URL}${equipoId.value}/`);
         equipoDetalle.value = response.data;
         console.log('Equipo cargado:', response.data);
+        console.log('Estado del equipo:', response.data.estado);
       } catch (e) {
         console.error('Error al cargar equipo:', e);
         error.value = "No se pudo cargar la información del equipo";
@@ -412,7 +414,6 @@ export default {
   }
 };
 </script>
-
 <style scoped>
 .page-container {
   display: flex;
@@ -690,6 +691,7 @@ export default {
   font-weight: 600;
 }
 
+/* BADGES DE ESTADO */
 .badge-estado {
   font-size: 11px;
   font-weight: 700;
@@ -703,16 +705,64 @@ export default {
   width: fit-content;
 }
 
+.badge-activo {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #81d742;
+}
+
 .badge-inactivo {
   background: #ffebee;
   color: #c62828;
   border: 1px solid #e74c3c;
 }
 
-.badge-activo {
-  background: #e8f5e9;
-  color: #2e7d32;
-  border: 1px solid #81d742;
+.badge-baja {
+  background: #fff3e0;
+  color: #e65100;
+  border: 1px solid #ff9800;
+}
+
+/* ESTADOS DE CARGA Y ERROR */
+.loading-state,
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  gap: 20px;
+}
+
+.loading-state p {
+  font-size: 16px;
+  color: #5a6c7d;
+  margin: 0;
+}
+
+.error-state p {
+  font-size: 16px;
+  color: #e74c3c;
+  margin: 0;
+}
+
+.retry-btn {
+  background: #00bab3;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.retry-btn:hover {
+  background: #008f8a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 186, 179, 0.3);
 }
 
 /* RESPONSIVE */

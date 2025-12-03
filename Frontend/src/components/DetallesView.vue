@@ -6,17 +6,22 @@
       <!-- Columna Izquierda: Foto y Botones -->
       <div class="columna-izquierda">
         <div class="foto-container">
-          <div class="foto-placeholder">
+          <div class="foto-placeholder" v-if="!imagenCargada">
             <p>📷</p>
             <span>{{ equipoDetalle.nombre_equipo }}</span>
           </div>
+          <img 
+            v-else
+            :src="imagenEquipo" 
+            :alt="equipoDetalle.nombre_equipo"
+            class="foto-equipo"
+            @error="manejarErrorImagen"
+          />
         </div>
 
         <button class="action-btn edit-btn" @click="editarEquipo">
           ✏️ Editar Info
         </button>
-
-        <!-- Botón "Dar de baja" eliminado -->
 
         <button class="action-btn volver-btn" @click="volverAtras">
           ⬅️ Volver al menú
@@ -338,7 +343,7 @@
 </template>
 <script>
 import { useRouter, useRoute } from 'vue-router';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
 
 export default {
@@ -352,6 +357,65 @@ export default {
     const equipoDetalle = ref({});
     const loading = ref(false);
     const error = ref(null);
+    
+    // 🎯 NUEVAS VARIABLES PARA LA IMAGEN
+    const imagenEquipo = ref(null);
+    const imagenCargada = ref(false);
+
+    // 🖼️ FORMATOS DE IMAGEN SOPORTADOS
+    const extensionesImagen = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+
+    // =============================
+    // 🔍 FUNCIÓN PARA CARGAR IMAGEN
+    // =============================
+    const cargarImagen = async (codigoInventario) => {
+      if (!codigoInventario) {
+        imagenCargada.value = false;
+        return;
+      }
+
+      // Intentar cargar la imagen con diferentes extensiones
+      for (const ext of extensionesImagen) {
+        try {
+          // Construir la ruta dinámica de la imagen
+          const rutaImagen = new URL(`../assets/img_eqp/${codigoInventario}.${ext}`, import.meta.url).href;
+          
+          // Crear una nueva imagen para probar si existe
+          const img = new Image();
+          
+          // Promesa para verificar si la imagen carga correctamente
+          const imagenExiste = await new Promise((resolve) => {
+            img.onload = () => resolve(true);
+            img.onerror = () => resolve(false);
+            img.src = rutaImagen;
+          });
+
+          if (imagenExiste) {
+            imagenEquipo.value = rutaImagen;
+            imagenCargada.value = true;
+            console.log(`✅ Imagen encontrada: ${codigoInventario}.${ext}`);
+            return; // Salir del loop si encontramos la imagen
+          }
+        } catch (e) {
+          // Continuar con la siguiente extensión
+          continue;
+        }
+      }
+
+      // Si no se encontró ninguna imagen
+      console.log(`⚠️ No se encontró imagen para: ${codigoInventario}`);
+      imagenCargada.value = false;
+      imagenEquipo.value = null;
+    };
+
+    // =============================
+    // ❌ MANEJAR ERROR DE IMAGEN
+    // =============================
+    const manejarErrorImagen = () => {
+      console.log('❌ Error al cargar la imagen');
+      imagenCargada.value = false;
+      imagenEquipo.value = null;
+    };
 
     // =============================
     // 🔥 CARGAR EQUIPO DESDE BACKEND
@@ -370,6 +434,9 @@ export default {
         equipoDetalle.value = response.data;
         console.log('Equipo cargado:', response.data);
         console.log('Estado del equipo:', response.data.estado);
+        
+        // 🖼️ Cargar imagen después de obtener los datos
+        await cargarImagen(response.data.codigo_inventario);
       } catch (e) {
         console.error('Error al cargar equipo:', e);
         error.value = "No se pudo cargar la información del equipo";
@@ -377,6 +444,15 @@ export default {
         loading.value = false;
       }
     };
+
+    // =============================
+    // 👁️ WATCH PARA CAMBIOS EN CODIGO
+    // =============================
+    watch(() => equipoDetalle.value.codigo_inventario, (nuevoCodigo) => {
+      if (nuevoCodigo) {
+        cargarImagen(nuevoCodigo);
+      }
+    });
 
     const editarEquipo = () => {
       router.push({ name: "editarEquipo", params: { id: equipoId.value } });
@@ -406,10 +482,13 @@ export default {
       equipoDetalle,
       loading,
       error,
+      imagenEquipo,
+      imagenCargada,
       editarEquipo,
       volverAtras,
       volverDashboard,
-      cargarEquipo
+      cargarEquipo,
+      manejarErrorImagen
     };
   }
 };
@@ -482,8 +561,10 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
+/* 🖼️ PLACEHOLDER DE FOTO */
 .foto-placeholder {
   width: 100%;
   aspect-ratio: 1;
@@ -509,6 +590,22 @@ export default {
   font-weight: 600;
   text-align: center;
   padding: 0 10px;
+}
+
+/* 🎨 ESTILOS PARA LA IMAGEN CARGADA */
+.foto-equipo {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.foto-equipo:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
 /* BOTONES DE ACCIÓN */

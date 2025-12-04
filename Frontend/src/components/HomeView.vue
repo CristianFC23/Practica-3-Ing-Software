@@ -187,7 +187,7 @@ watch(sedeActual, () => {
 });
 
 // =====================================================
-// TOTAL DE EQUIPOS
+// TOTAL DE EQUIPOS107550
 // =====================================================
 const totalEquipos = computed(() => {
   return equiposData.value.activos +
@@ -200,7 +200,7 @@ const totalEquipos = computed(() => {
 // =====================================================
 const pieSegments = computed(() => {
   const data = [
-    { value: equiposData.value.activos, color: '#81d742' },
+    { value: equiposData.value.activos, color: '#107550' },
     { value: equiposData.value.inactivos, color: '#f0b889' },
     { value: equiposData.value.baja, color: '#e89b9b' }
   ];
@@ -499,7 +499,7 @@ html, body {
 }
 
 .legend-color.activo {
-  background: #81d742;
+  background: #107550;
 }
 
 .legend-color.inactivo {

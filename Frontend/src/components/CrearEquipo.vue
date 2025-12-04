@@ -1,22 +1,12 @@
 <template>
   <div class="page-container">
-    <button @click="volverDashboard" class="btn-home">🏠</button>
+    <button @click="mostrarConfirmacion = true" class="btn-home">🏠</button>
 
     <div class="detalles-container">
-      <!-- COLUMNA IZQUIERDA: FOTO Y BOTONES -->
+      <!-- COLUMNA IZQUIERDA: BOTONES -->
       <div class="columna-izquierda">
-        <div class="foto-container">
-          <div class="foto-placeholder">
-            <p>📷</p>
-            <span>Subir foto del equipo</span>
-            <input type="file" accept="image/*" @change="handleImageUpload" style="display: none;" ref="fileInput" />
-            <button class="upload-btn" @click="$refs.fileInput.click()">Seleccionar imagen</button>
-            <p v-if="imagenNombre" class="imagen-nombre">{{ imagenNombre }}</p>
-          </div>
-        </div>
-
         <button class="action-btn save-btn" @click="guardarEquipo">💾 Guardar Equipo</button>
-        <button class="action-btn cancel-btn" @click="cancelar">❌ Cancelar</button>
+        <button class="action-btn cancel-btn" @click="mostrarConfirmacion = true">❌ Cancelar</button>
       </div>
 
       <!-- COLUMNA DERECHA: FORM -->
@@ -367,23 +357,46 @@
         </div>
       </div>
     </div>
+
+    <!-- MODAL DE CONFIRMACIÓN -->
+    <div v-if="mostrarConfirmacion" class="modal-overlay">
+      <div class="modal-content">
+        <h3>⚠️ Atención</h3>
+        <p>Todos los datos no guardados se perderán.<br>¿Estás seguro que deseas volver?</p>
+        <div class="modal-buttons">
+          <button class="confirm-btn" @click="confirmarCancelacion">Aceptar</button>
+          <button class="close-btn" @click="mostrarConfirmacion = false">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL DE GUARDADO EXITOSO -->
+    <div v-if="mostrarGuardado" class="modal-overlay">
+      <div class="modal-content modal-success">
+        <div class="modal-icon">✅</div>
+        <h3>Guardado exitoso</h3>
+        <p>El equipo <strong>{{ nuevoEquipo.nombre_equipo }}</strong> se creó correctamente.</p>
+        <div class="modal-buttons" style="justify-content: center;">
+          <button class="success-btn" @click="cerrarModalGuardado">Aceptar</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
-
 <script>
 import { ref } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRouter } from "vue-router";
 import axios from "axios";
 
 export default {
   setup() {
     const router = useRouter();
-    const route = useRoute();
 
     const API_URL = "http://127.0.0.1:8000/api/equipos/";
-
-    const fileInput = ref(null);
-    const imagenNombre = ref("");
+    
+    const mostrarConfirmacion = ref(false);
+    const mostrarGuardado = ref(false);
 
     // Objeto con nombres EXACTOS del modelo
     const nuevoEquipo = ref({
@@ -469,17 +482,7 @@ export default {
       "estado"
     ];
 
-    const handleImageUpload = (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        imagenNombre.value = file.name;
-        // En producción subirías el archivo al servidor o S3 y guardarías la URL
-        console.log("Imagen seleccionada:", file.name);
-      }
-    };
-
     const llenarNI = (obj) => {
-      // copia profunda ligera
       const payload = {};
       for (const key in obj) {
         const val = obj[key];
@@ -488,7 +491,6 @@ export default {
         } else if (typeof val === "string") {
           payload[key] = val.trim() === "" ? "NI" : val;
         } else {
-          // por si hay otros tipos (fechas ya en string; mantén como está)
           payload[key] = val;
         }
       }
@@ -496,7 +498,7 @@ export default {
     };
 
     const guardarEquipo = async () => {
-      // 1) validar obligatorios (deben tener valor no vacío)
+      // 1) validar obligatorios
       for (const campo of camposObligatorios) {
         const val = nuevoEquipo.value[campo];
         if (!val || (typeof val === "string" && val.trim() === "")) {
@@ -505,21 +507,18 @@ export default {
         }
       }
 
-      // 2) preparar payload: reemplazar string vacíos con "NI" para no obligatorios
+      // 2) preparar payload
       const payloadRaw = { ...nuevoEquipo.value };
-      // Note: fecha fields are strings (input date returns YYYY-MM-DD) - if empty become "NI"
       const payload = llenarNI(payloadRaw);
 
       // 3) enviar al backend
       try {
         const res = await axios.post(API_URL, payload);
         console.log("Respuesta backend:", res.data);
-        alert("¡Equipo creado exitosamente!");
-        router.push({ name: "equipos", query: { sede: route.query.sede, categoria: route.query.categoria }});
+        mostrarGuardado.value = true;
       } catch (error) {
         console.error("Error al guardar equipo:", error);
         if (error.response && error.response.data) {
-          // Mostrar mensaje claro del backend
           const backendMsg = typeof error.response.data === "object"
             ? JSON.stringify(error.response.data, null, 2)
             : error.response.data;
@@ -530,30 +529,32 @@ export default {
       }
     };
 
-    const cancelar = () => {
-      if (confirm("¿Está seguro de cancelar? Se perderán los datos no guardados.")) {
-        router.push({ name: "equipos", query: { sede: route.query.sede, categoria: route.query.categoria }});
-      }
+    const confirmarCancelacion = () => {
+      mostrarConfirmacion.value = false;
+      router.push({ name: "home" });
+    };
+
+    const cerrarModalGuardado = () => {
+      mostrarGuardado.value = false;
+      router.push({ name: "home" });
     };
 
     const volverDashboard = () => {
-      router.push({ name: "home" });
+      mostrarConfirmacion.value = true;
     };
 
     return {
       nuevoEquipo,
-      fileInput,
-      imagenNombre,
-      handleImageUpload,
+      mostrarConfirmacion,
+      mostrarGuardado,
       guardarEquipo,
-      cancelar,
+      confirmarCancelacion,
+      cerrarModalGuardado,
       volverDashboard
     };
   }
 };
 </script>
-
-
 <style scoped>
 .page-container {
   display: flex;
@@ -586,10 +587,15 @@ export default {
   padding-bottom: 7px;
 }
 
+.btn-home:hover {
+  transform: scale(1.05);
+  background: #00bab3;
+}
+
 /* CONTENEDOR PRINCIPAL */
 .detalles-container {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 280px 1fr;
   gap: 25px;
   max-width: 1400px;
   width: 100%;
@@ -601,49 +607,6 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 15px;
-}
-
-.foto-container {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 24px;
-  padding: 20px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.foto-placeholder {
-  width: 100%;
-  aspect-ratio: 1;
-  background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border: 2px dashed #244652;
-  gap: 10px;
-  padding: 20px;
-}
-
-.imagen-nombre {
-  font-size: 12px;
-  color: #5a6c7d;
-  margin-top: 6px;
-}
-
-.upload-btn {
-  background: #00bab3;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  margin-top: 10px;
 }
 
 /* BOTONES DE ACCIÓN */
@@ -660,10 +623,23 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.action-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.action-btn:active {
+  transform: translateY(-1px);
+}
+
 .save-btn {
   background: #6fc232;
   color: white;
   border-color: #6fc232;
+}
+
+.save-btn:hover {
+  background: #5da828;
 }
 
 .cancel-btn:hover {
@@ -710,10 +686,33 @@ export default {
   padding-right: 15px;
 }
 
+.info-scrolleable::-webkit-scrollbar {
+  width: 8px;
+}
+
+.info-scrolleable::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 6px;
+}
+
+.info-scrolleable::-webkit-scrollbar-thumb {
+  background: #244652;
+  border-radius: 6px;
+}
+
+.info-scrolleable::-webkit-scrollbar-thumb:hover {
+  background: #212a31;
+}
+
+/* SECCIONES */
 .info-section {
   margin-bottom: 30px;
   padding-bottom: 20px;
   border-bottom: 2px solid #f0f0f0;
+}
+
+.info-section:last-child {
+  border-bottom: none;
 }
 
 .section-title {
@@ -779,20 +778,144 @@ export default {
   box-shadow: 0 0 0 3px rgba(0, 186, 179, 0.1);
 }
 
+.info-item textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* ============================
+   MODALES CENTRADOS
+   ============================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: white;
+  padding: 32px 28px;
+  border-radius: 16px;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+  animation: modal-pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h3 {
+  margin: 0 0 12px 0;
+  font-size: 20px;
+  color: #244652;
+}
+
+.modal-content p {
+  margin: 0 0 20px 0;
+  color: #5a6c7d;
+  line-height: 1.5;
+}
+
+/* MODAL DE ÉXITO */
+.modal-success {
+  border-top: 4px solid #6fc232;
+}
+
+.modal-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  animation: icon-bounce 0.5s ease-out;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.confirm-btn,
+.close-btn,
+.success-btn {
+  flex: 1;
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.confirm-btn {
+  background: #e74c3c;
+  color: white;
+}
+
+.confirm-btn:hover {
+  background: #c0392b;
+  transform: translateY(-1px);
+}
+
+.close-btn {
+  background: #244652;
+  color: white;
+}
+
+.close-btn:hover {
+  background: #1a3540;
+  transform: translateY(-1px);
+}
+
+.success-btn {
+  background: #6fc232;
+  color: white;
+}
+
+.success-btn:hover {
+  background: #5da828;
+  transform: translateY(-1px);
+}
+
+@keyframes modal-pop {
+  from { 
+    transform: scale(0.8); 
+    opacity: 0; 
+  }
+  to { 
+    transform: scale(1); 
+    opacity: 1; 
+  }
+}
+
+@keyframes icon-bounce {
+  0% { 
+    transform: scale(0); 
+  }
+  50% { 
+    transform: scale(1.2); 
+  }
+  100% { 
+    transform: scale(1); 
+  }
+}
+
 /* RESPONSIVE */
 @media (max-width: 1024px) {
   .detalles-container {
     grid-template-columns: 1fr;
     height: auto;
   }
+  
   .columna-izquierda {
     flex-direction: row;
     flex-wrap: wrap;
   }
-  .foto-container {
-    flex: 1;
-    min-width: 200px;
-  }
+  
   .action-btn {
     flex: 1;
     min-width: 150px;
@@ -803,17 +926,35 @@ export default {
   .page-container {
     padding: 20px;
   }
+  
   .info-grid {
     grid-template-columns: 1fr;
   }
+  
   .columna-izquierda {
     flex-direction: column;
   }
+
+  .action-btn {
+    min-width: unset;
+  }
+  
   .dashboard-title {
     font-size: 22px;
   }
+  
   .section-title {
     font-size: 16px;
+  }
+
+  .btn-home {
+    width: 45px;
+    height: 45px;
+    font-size: 22px;
+  }
+
+  .modal-content {
+    padding: 24px 20px;
   }
 }
 </style>

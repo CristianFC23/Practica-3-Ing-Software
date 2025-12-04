@@ -3,25 +3,8 @@
     <button @click="volverAtras" class="btn-home">🏠</button>
 
     <div class="detalles-container">
-      <!-- Columna Izquierda: Foto y Botones -->
+      <!-- Columna Izquierda: Botones de Acción -->
       <div class="columna-izquierda">
-        <div class="foto-container">
-          <div class="foto-placeholder">
-            <template v-if="preview || equipo.foto_url">
-              <img :src="preview || equipo.foto_url" alt="foto equipo" class="foto-preview" />
-            </template>
-            <template v-else>
-              <p>📷</p>
-            </template>
-
-            <span class="foto-nombre">{{ equipo.nombre_equipo || 'Sin nombre' }}</span>
-
-            <input ref="fileInput" type="file" accept="image/*" @change="onFileChange" style="display:none" />
-            <button class="upload-btn" @click="$refs.fileInput.click()">Cambiar imagen</button>
-            <p v-if="imagenNombre" class="imagen-nombre">{{ imagenNombre }}</p>
-          </div>
-        </div>
-
         <button class="action-btn save-btn" @click="actualizarEquipo">💾 Guardar Cambios</button>
         <button class="action-btn cancel-btn" @click="mostrarConfirmacion = true">❌ Cancelar</button>
         <button class="action-btn baja-btn" @click="darBaja">❌ Dar de baja</button>
@@ -513,15 +496,10 @@ export default {
       motivo_baja: "",
       justificacion_baja: "",
       justificacion_traslado: "",
-
-      foto: null,
-      foto_url: "",
     });
 
     const loading = ref(false);
     const error = ref(null);
-    const preview = ref(null);
-    const imagenNombre = ref("");
 
     const equipoId = route.params.id;
 
@@ -535,11 +513,6 @@ export default {
       try {
         const res = await axios.get(`${API_URL}${equipoId}/`);
         Object.assign(equipo, res.data);
-
-        if (res.data.foto) equipo.foto_url = res.data.foto;
-        if (res.data.foto_url) equipo.foto_url = res.data.foto_url;
-
-        preview.value = equipo.foto_url || null;
       } catch (e) {
         error.value = "No se pudo cargar la información del equipo";
       } finally {
@@ -548,18 +521,6 @@ export default {
     };
 
     onMounted(cargarEquipo);
-
-    /* ------------------------------------------------------
-       📷 Manejar imagen
-       ------------------------------------------------------ */
-    const onFileChange = (e) => {
-      const f = e.target.files[0];
-      if (!f) return;
-
-      imagenNombre.value = f.name;
-      equipo.foto = f;
-      preview.value = URL.createObjectURL(f);
-    };
 
     /* ------------------------------------------------------
        🔄 Reemplazar valores vacíos por "NI"
@@ -586,24 +547,7 @@ export default {
           return;
         }
 
-        if (equipo.foto instanceof File) {
-          const formData = new FormData();
-          for (const k in equipo) {
-            const v = equipo[k];
-            if (v instanceof File) {
-              formData.append("foto", v);
-            } else {
-              formData.append(k, v ?? "");
-            }
-          }
-
-          await axios.put(`${API_URL}${equipoId}/`, formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          });
-        } else {
-          await axios.put(`${API_URL}${equipoId}/`, llenarNI(equipo));
-        }
-
+        await axios.put(`${API_URL}${equipoId}/`, llenarNI(equipo));
         mostrarGuardado.value = true;
 
       } catch (e) {
@@ -679,14 +623,11 @@ export default {
       equipo,
       loading,
       error,
-      preview,
-      imagenNombre,
 
       cargarEquipo,
       actualizarEquipo,
       darBaja,
       volverAtras,
-      onFileChange,
 
       /* Modales */
       mostrarConfirmacion,
@@ -746,7 +687,7 @@ export default {
 /* CONTENEDOR PRINCIPAL */
 .detalles-container {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 280px 1fr;
   gap: 25px;
   max-width: 1400px;
   width: 100%;
@@ -760,67 +701,27 @@ export default {
   gap: 15px;
 }
 
-.foto-container {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 24px;
-  padding: 20px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.foto-placeholder {
-  width: 100%;
-  aspect-ratio: 1;
-  background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border: 2px dashed #244652;
-  gap: 10px;
-  padding: 16px;
-}
-
-.foto-preview {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 12px;
-}
-
-.foto-nombre {
-  color: #5a6c7d;
-  font-size: 14px;
-  font-weight: 600;
-  text-align: center;
-  margin-top: 8px;
-}
-
-/* BOTONES IZQUIERDA */
-.upload-btn {
-  background: #00bab3;
-  color: white;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 13px;
-  margin-top: 8px;
-}
-
+/* BOTONES DE ACCIÓN */
 .action-btn {
   background: white;
   color: #244652;
   border: 2px solid #244652;
-  padding: 12px 14px;
-  border-radius: 12px;
+  padding: 14px 20px;
+  border-radius: 16px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
-  transition: all 0.25s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.action-btn:active {
+  transform: translateY(-1px);
 }
 
 .save-btn {
@@ -875,7 +776,7 @@ export default {
   margin: 0 0 10px 0;
 }
 
-/* Inputs modernos */
+/* INPUTS MODERNOS */
 .input-edit {
   font-size: 14px;
   padding: 8px 12px;
@@ -1007,7 +908,7 @@ export default {
   border-left: 3px solid #ffc107;
 }
 
-/* Badge estado */
+/* BADGE ESTADO */
 .badge-estado {
   font-size: 11px;
   font-weight: 700;
@@ -1093,7 +994,7 @@ export default {
   line-height: 1.5;
 }
 
-/* Modal de éxito */
+/* MODAL DE ÉXITO */
 .modal-success {
   border-top: 4px solid #6fc232;
 }
@@ -1104,7 +1005,7 @@ export default {
   animation: icon-bounce 0.5s ease-out;
 }
 
-/* Modal de baja */
+/* MODAL DE BAJA */
 .modal-baja {
   border-top: 4px solid #e74c3c;
   max-width: 500px;
@@ -1249,6 +1150,11 @@ export default {
     flex-direction: row;
     flex-wrap: wrap;
   }
+
+  .action-btn {
+    flex: 1;
+    min-width: 150px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1268,6 +1174,14 @@ export default {
   
   .modal-content {
     padding: 24px 20px;
+  }
+
+  .columna-izquierda {
+    flex-direction: column;
+  }
+
+  .action-btn {
+    min-width: unset;
   }
 }
 </style>
